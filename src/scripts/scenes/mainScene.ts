@@ -32,34 +32,8 @@ export default class MainScene extends Phaser.Scene {
     this.addItem()
     this.updateBars()
 
-    this.physics.add.overlap(
-      this.raven,
-      this.itemsGroup,
-      (raven: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) => {
-        const r = raven as Raven
-        if (r.z > -10) {
-          console.log('Raven collected item', item)
-          r.collectItem(item as Item)
-          this.addItem()
-          return true
-        }
-        return false
-      }
-    )
-
-    this.physics.add.overlap(
-      this.raven,
-      this.nest,
-      (raven: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) => {
-        const r = raven as Raven
-        if (r.z > -10) {
-          console.log('Raven interacted with nest')
-          r.interactWithNest(nest as Nest)
-          return true
-        }
-        return false
-      }
-    )
+    this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem)
+    this.physics.add.overlap(this.raven, this.nest, this.enterNest)
   }
 
   update() {
@@ -82,6 +56,27 @@ export default class MainScene extends Phaser.Scene {
       'Mystic Crystals'
     )
     this.itemsGroup.add(item)
+  }
+
+  collectItem(raven: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) {
+    const r = raven as Raven
+    if (r.z > -10) {
+      console.log('Raven collected item', item)
+      r.collectItem(item as Item)
+      this.addItem()
+      return true
+    }
+    return false
+  }
+
+  enterNest(raven: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) {
+    const r = raven as Raven
+    if (r.z > -10) {
+      console.log('Raven interacted with nest')
+      r.interactWithNest(nest as Nest)
+      return true
+    }
+    return false
   }
 
   updateBars() {

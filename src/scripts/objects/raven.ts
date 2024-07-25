@@ -92,6 +92,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     if (this.cursors.space.isDown && this.stamina > 0) {
       this.velocityZ = -config.SPEED_ASCEND // Ascend
       this.useStamina(config.STAMINA_USE_FLYING)
+      this.ravenSprite.anims.play('fly', true)
     } else {
       this.velocityZ += config.SPEED_GRAVITY // Gravity effect
     }
@@ -100,6 +101,15 @@ export default class Raven extends Phaser.GameObjects.Container {
     if (this.z > 0) {
       this.z = 0
       this.velocityZ = 0
+    } else if (this.velocityZ > 0) {
+      this.ravenSprite.anims.stop()
+    }
+
+    if (this.z === 0) {
+      this.ravenSprite.anims.play('walk', true)
+      if (this.body.velocity.x === 0 && this.body.velocity.y == 0) {
+        this.ravenSprite.anims.stop()
+      }
     }
 
     // Set the raven sprite's y position to simulate height
