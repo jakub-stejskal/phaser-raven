@@ -36,6 +36,9 @@ export default class Raven extends Phaser.GameObjects.Container {
     // Add the container to the scene
     this.scene.add.existing(this)
     this.scene.physics.add.existing(this)
+    // center collision box
+    this.body.setSize(40, 40)
+    this.body.setOffset(-20, -10)
     this.body.setCollideWorldBounds(true)
 
     // Initialize raven and its shadow and add them to the container
@@ -73,15 +76,16 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.body.setVelocity(0)
 
     // Ground movement (affects the container's position)
+    const speed = this.z < 0 ? config.SPEED_FLYING : config.SPEED_WALKING
     if (this.keys.A.isDown) {
-      this.body.setVelocityX(-config.SPEED_WALKING)
+      this.body.setVelocityX(-speed)
     } else if (this.keys.D.isDown) {
-      this.body.setVelocityX(config.SPEED_WALKING)
+      this.body.setVelocityX(speed)
     }
     if (this.keys.W.isDown) {
-      this.body.setVelocityY(-config.SPEED_WALKING)
+      this.body.setVelocityY(-speed)
     } else if (this.keys.S.isDown) {
-      this.body.setVelocityY(config.SPEED_WALKING)
+      this.body.setVelocityY(speed)
     }
 
     // Flying logic (adjusts z for height)

@@ -24,13 +24,26 @@ export default class MainScene extends Phaser.Scene {
 
     this.raven = new Raven(this, this.cameras.main.centerX, this.cameras.main.centerY)
 
+    this.itemsGroup = this.physics.add.group({
+      classType: Item,
+      runChildUpdate: true
+    })
+
+    this.addItem()
     this.updateBars()
 
     this.physics.add.overlap(
       this.raven,
       this.itemsGroup,
       (raven: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) => {
-        ;(raven as Raven).collectItem(item as Item)
+        const r = raven as Raven
+        if (r.z > -10) {
+          console.log('Raven collected item', item)
+          r.collectItem(item as Item)
+          this.addItem()
+          return true
+        }
+        return false
       }
     )
 
@@ -38,7 +51,13 @@ export default class MainScene extends Phaser.Scene {
       this.raven,
       this.nest,
       (raven: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) => {
-        ;(raven as Raven).interactWithNest(nest as Nest)
+        const r = raven as Raven
+        if (r.z > -10) {
+          console.log('Raven interacted with nest')
+          r.interactWithNest(nest as Nest)
+          return true
+        }
+        return false
       }
     )
   }
@@ -50,6 +69,19 @@ export default class MainScene extends Phaser.Scene {
     if (config.DEBUG) {
       this.updateDebugGraphics()
     }
+  }
+
+  addItem() {
+    const frameName = `items_4x${Math.floor(Math.random() * 64)}.png`
+    const item = new Item(
+      this,
+      Math.floor(Math.random() * 1280),
+      Math.floor(Math.random() * 720),
+      'itemsAtlas',
+      frameName,
+      'Mystic Crystals'
+    )
+    this.itemsGroup.add(item)
   }
 
   updateBars() {
