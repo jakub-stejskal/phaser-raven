@@ -82,7 +82,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.body.setVelocity(0)
 
     // Calculate speed adjustment based on weight
-    const weightFactor = Math.max(0.5, 1 - this.totalWeight / 10) // Minimum factor of 0.5
+    const weightFactor = Math.max(config.ITEM_MAX_WEIGHT_FACTOR, 1 - this.totalWeight / config.ITEM_WEIGHT_FACTOR_COEF) //
     const walkingSpeed = this.z < 0 ? config.SPEED_FLYING * weightFactor : config.SPEED_WALKING
     const ascendSpeed = config.SPEED_ASCEND * weightFactor
 
@@ -177,6 +177,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.stamina = Phaser.Math.Clamp(this.stamina + amount, 0, config.STAMINA_MAX)
   }
 
+  // TODO: Move the indicators to a group with the raven for better performance and management
   updateItemIndicators() {
     // Remove existing indicators
     this.itemIndicators.forEach(indicator => indicator.destroy())

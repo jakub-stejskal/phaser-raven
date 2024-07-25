@@ -2,6 +2,7 @@ import Raven from '../objects/raven'
 import Nest from '../objects/nest'
 import Item from '../objects/item'
 import config from '../config'
+import { MATERIALS } from '../objects/types'
 
 export default class MainScene extends Phaser.Scene {
   healthBar: Phaser.GameObjects.Graphics
@@ -54,7 +55,7 @@ export default class MainScene extends Phaser.Scene {
       Math.floor(Math.random() * 720),
       'itemsAtlas',
       frameName,
-      'Mystic Crystals'
+      MATERIALS[Math.floor(Math.random() * MATERIALS.length)]
     )
     this.itemsGroup.add(item)
   }

@@ -4,7 +4,9 @@ import { UpgradeType } from './types'
 
 export default class Nest extends Phaser.Physics.Arcade.Sprite {
   essence: number
-  materials: { [key: string]: number } // Stores different types of materials and their quantities
+  materials: { [key: string]: number }
+  essenceText: Phaser.GameObjects.Text
+  materialsText: Phaser.GameObjects.Text
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'nest')
@@ -13,6 +15,16 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
 
     this.scene.add.existing(this)
     this.scene.physics.add.existing(this)
+
+    this.essenceText = this.scene.add.text(this.x - this.width / 2, this.y + 50, '', {
+      fontSize: '14px',
+      color: '#ffffff'
+    })
+    this.materialsText = this.scene.add.text(this.x - this.width / 2, this.y + 70, '', {
+      fontSize: '14px',
+      color: '#ffffff'
+    })
+    this.updateResourceDisplay()
   }
 
   storeItems(items: Item[]): void {
@@ -21,6 +33,7 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
       this.materials[item.material] = (this.materials[item.material] || 0) + 1
       item.destroy()
     })
+    this.updateResourceDisplay()
   }
 
   craftUpgrade(upgradeType: UpgradeType): boolean {
@@ -62,6 +75,7 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
     for (const material in cost.materials) {
       this.materials[material] -= cost.materials[material]
     }
+    this.updateResourceDisplay()
   }
 
   healRaven(raven: Raven): void {
@@ -69,5 +83,14 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
     if (Phaser.Math.Distance.Between(raven.x, raven.y, this.x, this.y) < 100) {
       raven.recoverHealth(1) // Adjust healing rate as needed
     }
+  }
+
+  updateResourceDisplay(): void {
+    this.essenceText.setText(`Essence: ${this.essence}`)
+    this.materialsText.setText(
+      `Materials: \n${Object.keys(this.materials)
+        .map(key => `${key}: ${this.materials[key]}`)
+        .join(', \n')}`
+    )
   }
 }
