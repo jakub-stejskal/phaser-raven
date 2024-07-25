@@ -61,9 +61,7 @@ export default class MainScene extends Phaser.Scene {
 
   collectItem = (raven: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) => {
     const r = raven as Raven
-    if (r.z > -10) {
-      console.log('Raven collected item', item)
-      r.collectItem(item as Item)
+    if (r.z > -10 && r.collectItem(item as Item)) {
       this.addItem()
       return true
     }
@@ -73,7 +71,6 @@ export default class MainScene extends Phaser.Scene {
   enterNest = (raven: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) => {
     const r = raven as Raven
     if (r.z > -10) {
-      console.log('Raven interacted with nest')
       r.interactWithNest(nest as Nest)
       return true
     }

@@ -12,10 +12,14 @@ interface WASD {
 export default class Raven extends Phaser.GameObjects.Container {
   shadow: Phaser.GameObjects.Ellipse
   ravenSprite: Phaser.GameObjects.Sprite
+  itemIndicators: Phaser.GameObjects.Ellipse[]
+
   cursors: Phaser.Types.Input.Keyboard.CursorKeys
   keys: WASD
   body: Phaser.Physics.Arcade.Body
+
   items: Item[]
+  totalWeight: number
   health: number
   stamina: number
   nest: Phaser.GameObjects.GameObject | null
@@ -29,6 +33,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.z = 0
     this.velocityZ = 0
     this.items = []
+    this.totalWeight = 0
     this.health = config.HEALTH_MAX
     this.stamina = config.STAMINA_MAX
     this.nest = null
@@ -44,6 +49,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     // Initialize raven and its shadow and add them to the container
     this.shadow = this.scene.add.ellipse(0, 20, 40, 20, 0x000000, 0.2)
     this.ravenSprite = this.scene.add.sprite(0, -this.z, 'raven-walking')
+    this.itemIndicators = []
     this.add(this.shadow)
     this.add(this.ravenSprite)
 
@@ -75,22 +81,25 @@ export default class Raven extends Phaser.GameObjects.Container {
     // Reset horizontal velocity
     this.body.setVelocity(0)
 
-    // Ground movement (affects the container's position)
-    const speed = this.z < 0 ? config.SPEED_FLYING : config.SPEED_WALKING
+    // Calculate speed adjustment based on weight
+    const weightFactor = Math.max(0.5, 1 - this.totalWeight / 10) // Minimum factor of 0.5
+    const walkingSpeed = this.z < 0 ? config.SPEED_FLYING * weightFactor : config.SPEED_WALKING
+    const ascendSpeed = config.SPEED_ASCEND * weightFactor
+
     if (this.keys.A.isDown) {
-      this.body.setVelocityX(-speed)
+      this.body.setVelocityX(-walkingSpeed)
     } else if (this.keys.D.isDown) {
-      this.body.setVelocityX(speed)
+      this.body.setVelocityX(walkingSpeed)
     }
     if (this.keys.W.isDown) {
-      this.body.setVelocityY(-speed)
+      this.body.setVelocityY(-walkingSpeed)
     } else if (this.keys.S.isDown) {
-      this.body.setVelocityY(speed)
+      this.body.setVelocityY(walkingSpeed)
     }
 
     // Flying logic (adjusts z for height)
     if (this.cursors.space.isDown && this.stamina > 0) {
-      this.velocityZ = -config.SPEED_ASCEND // Ascend
+      this.velocityZ = -ascendSpeed // Ascend
       this.useStamina(config.STAMINA_USE_FLYING)
       this.ravenSprite.anims.play('fly', true)
     } else {
@@ -118,6 +127,8 @@ export default class Raven extends Phaser.GameObjects.Container {
     // Adjust the shadow's scale based on height
     this.shadow.scale = 1 - (Math.abs(this.z) / 200) * 0.5
 
+    this.updateItemIndicators()
+
     // Recover stamina when not moving or flying
     if (this.cursors.space.isUp) {
       if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
@@ -128,15 +139,20 @@ export default class Raven extends Phaser.GameObjects.Container {
     }
   }
 
-  collectItem(item: Item) {
+  collectItem(item: Item): boolean {
+    if (this.items.length >= config.ITEM_MAX_CARRIED) return false
+
     this.items.push(item)
+    this.totalWeight += item.weight
     item.destroy()
+    return true
   }
 
   interactWithNest(nest: Nest) {
     this.nest = nest
     nest.storeItems(this.items)
     this.items = []
+    this.totalWeight = 0
   }
 
   takeDamage(amount: number) {
@@ -159,6 +175,21 @@ export default class Raven extends Phaser.GameObjects.Container {
 
   recoverStamina(amount: number) {
     this.stamina = Phaser.Math.Clamp(this.stamina + amount, 0, config.STAMINA_MAX)
+  }
+
+  updateItemIndicators() {
+    // Remove existing indicators
+    this.itemIndicators.forEach(indicator => indicator.destroy())
+    this.itemIndicators = []
+
+    // Add new indicators based on the number of items
+    for (let i = 0; i < this.items.length; i++) {
+      const offset = i * 10 - (this.items.length - 1) * 5 // Center the indicators
+      // Position the indicators below the raven sprite
+      const indicator = this.scene.add.ellipse(offset, this.z, 5, 5, 0xffff00)
+      this.itemIndicators.push(indicator)
+      this.add(indicator)
+    }
   }
 
   die() {
