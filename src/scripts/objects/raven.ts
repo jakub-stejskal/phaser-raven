@@ -1,5 +1,6 @@
 import Item from './item'
 import Nest from './nest'
+import config from '../config'
 
 interface WASD {
   W: Phaser.Input.Keyboard.Key
@@ -8,41 +9,47 @@ interface WASD {
   D: Phaser.Input.Keyboard.Key
 }
 
-export default class Raven extends Phaser.Physics.Arcade.Sprite {
+export default class Raven extends Phaser.GameObjects.Container {
   shadow: Phaser.GameObjects.Ellipse
+  ravenSprite: Phaser.GameObjects.Sprite
   cursors: Phaser.Types.Input.Keyboard.CursorKeys
-  wasd: WASD
+  keys: WASD
   body: Phaser.Physics.Arcade.Body
   items: Item[]
-  maxHealth: number
   health: number
-  maxStamina: number
   stamina: number
   nest: Phaser.GameObjects.GameObject | null
+  z: number
+  velocityZ: number
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'raven-walking')
-    this.scene = scene
+    super(scene, x, y)
 
-    // Add the player to the scene
+    this.scene = scene
+    this.z = 0 // Height above ground
+    this.velocityZ = 0 // Velocity in the z-axis (height)
+    this.items = []
+    this.health = config.HEALTH_MAX
+    this.stamina = config.STAMINA_MAX
+    this.nest = null
+
+    // Add the container to the scene
     this.scene.add.existing(this)
     this.scene.physics.add.existing(this)
-    this.setCollideWorldBounds(true)
+    this.body.setCollideWorldBounds(true)
 
     // Create shadow
-    this.shadow = this.scene.add.ellipse(x, y + 20, 40, 20, 0x000000, 0.5)
+    this.shadow = this.scene.add.ellipse(0, 20, 40, 20, 0x000000, 0.2)
+    // Create raven sprite
+    this.ravenSprite = this.scene.add.sprite(0, -this.z, 'raven-walking')
+
+    // Add shadow and sprite to the container
+    this.add(this.shadow)
+    this.add(this.ravenSprite)
 
     // Setup controls
     this.cursors = this.scene.input.keyboard.createCursorKeys()
-    this.wasd = this.scene.input.keyboard.addKeys('W,A,S,D') as WASD
-
-    // Initialize item collection, health, and stamina
-    this.items = []
-    this.maxHealth = 100
-    this.health = this.maxHealth
-    this.maxStamina = 100
-    this.stamina = this.maxStamina
-    this.nest = null // Nest object will be assigned later
+    this.keys = this.scene.input.keyboard.addKeys('W,A,S,D') as WASD
 
     // Setup animations
     this.setupAnimations()
@@ -65,45 +72,56 @@ export default class Raven extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
+    // Reset horizontal velocity
     this.body.setVelocity(0)
 
-    // Movement by WASD
-    if (this.wasd.A.isDown) {
-      this.body.setVelocityX(-100)
-      this.useStamina(0.1)
-    } else if (this.wasd.D.isDown) {
-      this.body.setVelocityX(100)
-      this.useStamina(0.1)
+    // Ground movement (affects the container's position)
+    if (this.keys.A.isDown) {
+      this.body.setVelocityX(-config.SPEED_WALKING)
+    } else if (this.keys.D.isDown) {
+      this.body.setVelocityX(config.SPEED_WALKING)
     }
 
-    if (this.wasd.W.isDown) {
-      this.body.setVelocityY(-100)
-      this.useStamina(0.1)
-    } else if (this.wasd.S.isDown) {
-      this.body.setVelocityY(100)
-      this.useStamina(0.1)
+    if (this.keys.W.isDown) {
+      this.body.setVelocityY(-config.SPEED_WALKING)
+    } else if (this.keys.S.isDown) {
+      this.body.setVelocityY(config.SPEED_WALKING)
     }
 
-    // Flying up by SPACE
+    // Flying logic (adjusts z for height)
     if (this.cursors.space.isDown && this.stamina > 0) {
-      this.body.setVelocityY(-200)
-      this.anims.play('fly', true)
-      this.useStamina(1)
+      this.velocityZ = -config.SPEED_ASCEND // Ascend
+      this.useStamina(config.STAMINA_USE_FLYING)
     } else {
-      if (this.body.velocity.x !== 0 || this.body.velocity.y !== 0) {
-        this.anims.play('walk', true)
+      this.velocityZ += config.SPEED_GRAVITY // Gravity effect
+    }
+
+    // Apply z-axis movement
+    this.z += (this.velocityZ * this.scene.game.loop.delta) / 1000
+
+    // Prevent raven from going below ground (z = 0)
+    if (this.z > 0) {
+      this.z = 0
+      this.velocityZ = 0
+    }
+
+    // Set the raven sprite's y position to simulate height
+    this.ravenSprite.y = this.z
+
+    // Shadow position should reflect the raven's actual ground position
+    this.shadow.setPosition(0, 20) // Shadow stays at base level within the container
+
+    // Optionally adjust the shadow's scale based on height
+    this.shadow.scale = 1 - (Math.abs(this.z) / 200) * 0.5
+
+    // Recover stamina when not moving or flying
+    if (this.cursors.space.isUp) {
+      if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
+        this.recoverStamina(config.STAMINA_RECOVERY_IDLE)
       } else {
-        this.anims.stop()
+        this.recoverStamina(config.STAMINA_RECOVERY_WALKING)
       }
     }
-
-    // Recover stamina when not moving
-    if (this.body.velocity.x === 0 && this.body.velocity.y === 0 && this.cursors.space.isUp) {
-      this.recoverStamina(0.5)
-    }
-
-    // Update shadow position
-    this.shadow.setPosition(this.x, this.y + 20)
   }
 
   collectItem(item: Item) {
@@ -126,7 +144,7 @@ export default class Raven extends Phaser.Physics.Arcade.Sprite {
   }
 
   recoverHealth(amount: number) {
-    this.health = Phaser.Math.Clamp(this.health + amount, 0, this.maxHealth)
+    this.health = Phaser.Math.Clamp(this.health + amount, 0, config.HEALTH_MAX)
   }
 
   useStamina(amount: number) {
@@ -137,7 +155,7 @@ export default class Raven extends Phaser.Physics.Arcade.Sprite {
   }
 
   recoverStamina(amount: number) {
-    this.stamina = Phaser.Math.Clamp(this.stamina + amount, 0, this.maxStamina)
+    this.stamina = Phaser.Math.Clamp(this.stamina + amount, 0, config.STAMINA_MAX)
   }
 
   die() {
