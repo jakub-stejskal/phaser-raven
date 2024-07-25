@@ -6,7 +6,6 @@ export default class PreloadScene extends Phaser.Scene {
   preload() {
     this.load.spritesheet('raven-walking', 'assets/img/raven-walking.png', { frameWidth: 64, frameHeight: 64 })
     this.load.spritesheet('raven-flying', 'assets/img/raven-flying.png', { frameWidth: 64, frameHeight: 64 })
-    this.load.image('shadow', 'assets/img/shadow.png')
   }
 
   create() {

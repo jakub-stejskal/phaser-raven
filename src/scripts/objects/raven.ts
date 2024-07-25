@@ -26,8 +26,8 @@ export default class Raven extends Phaser.GameObjects.Container {
     super(scene, x, y)
 
     this.scene = scene
-    this.z = 0 // Height above ground
-    this.velocityZ = 0 // Velocity in the z-axis (height)
+    this.z = 0
+    this.velocityZ = 0
     this.items = []
     this.health = config.HEALTH_MAX
     this.stamina = config.STAMINA_MAX
@@ -38,12 +38,9 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.scene.physics.add.existing(this)
     this.body.setCollideWorldBounds(true)
 
-    // Create shadow
+    // Initialize raven and its shadow and add them to the container
     this.shadow = this.scene.add.ellipse(0, 20, 40, 20, 0x000000, 0.2)
-    // Create raven sprite
     this.ravenSprite = this.scene.add.sprite(0, -this.z, 'raven-walking')
-
-    // Add shadow and sprite to the container
     this.add(this.shadow)
     this.add(this.ravenSprite)
 
@@ -81,7 +78,6 @@ export default class Raven extends Phaser.GameObjects.Container {
     } else if (this.keys.D.isDown) {
       this.body.setVelocityX(config.SPEED_WALKING)
     }
-
     if (this.keys.W.isDown) {
       this.body.setVelocityY(-config.SPEED_WALKING)
     } else if (this.keys.S.isDown) {
@@ -95,10 +91,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     } else {
       this.velocityZ += config.SPEED_GRAVITY // Gravity effect
     }
-
-    // Apply z-axis movement
     this.z += (this.velocityZ * this.scene.game.loop.delta) / 1000
-
     // Prevent raven from going below ground (z = 0)
     if (this.z > 0) {
       this.z = 0
@@ -108,10 +101,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     // Set the raven sprite's y position to simulate height
     this.ravenSprite.y = this.z
 
-    // Shadow position should reflect the raven's actual ground position
-    this.shadow.setPosition(0, 20) // Shadow stays at base level within the container
-
-    // Optionally adjust the shadow's scale based on height
+    // Adjust the shadow's scale based on height
     this.shadow.scale = 1 - (Math.abs(this.z) / 200) * 0.5
 
     // Recover stamina when not moving or flying
@@ -131,7 +121,6 @@ export default class Raven extends Phaser.GameObjects.Container {
 
   interactWithNest(nest: Nest) {
     this.nest = nest
-    // Example: deposit all items in the nest
     nest.storeItems(this.items)
     this.items = []
   }
