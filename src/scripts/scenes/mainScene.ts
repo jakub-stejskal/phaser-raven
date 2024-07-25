@@ -3,6 +3,7 @@ import FpsText from '../objects/fpsText'
 import Raven from '../objects/raven'
 import Nest from '../objects/nest'
 import Item from '../objects/item'
+import Texture = Phaser.Textures.Texture;
 
 export default class MainScene extends Phaser.Scene {
   fpsText: FpsText
@@ -16,12 +17,29 @@ export default class MainScene extends Phaser.Scene {
     super({ key: 'MainScene' })
   }
 
+  preload() {
+    this.load.atlas('itemsAtlas', 'assets/img/items_4x.png', 'assets/img/items_4x.json');
+  }
+
   create() {
     this.fpsText = new FpsText(this)
 
     this.healthBar = this.add.graphics()
     this.staminaBar = this.add.graphics()
     this.raven = new Raven(this, 100, 100)
+    const frameName = `items_4x${Math.floor(Math.random() * 64)}.png`;
+    console.log(`Frame name: ${frameName}`);
+    const firstItem = new Item(this, Math.floor(Math.random() * (1280)), Math.floor(Math.random() * 720), 'itemsAtlas', frameName);
+    firstItem.scene.add.existing(firstItem)
+    firstItem.scene.physics.add.existing(firstItem)
+    firstItem.setCollideWorldBounds(true)
+
+    this.itemsGroup = this.physics.add.group({
+      classType: Item,
+      runChildUpdate: true
+    });
+
+    this.itemsGroup.add(firstItem, true)
 
     this.updateBars()
 
