@@ -22,6 +22,7 @@ export default class MainScene extends Phaser.Scene {
     this.healthBar = this.add.graphics()
     this.staminaBar = this.add.graphics()
 
+    this.nest = new Nest(this, this.cameras.main.centerX, this.cameras.main.centerY)
     this.raven = new Raven(this, this.cameras.main.centerX, this.cameras.main.centerY)
 
     this.itemsGroup = this.physics.add.group({
@@ -58,7 +59,7 @@ export default class MainScene extends Phaser.Scene {
     this.itemsGroup.add(item)
   }
 
-  collectItem(raven: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) {
+  collectItem = (raven: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) => {
     const r = raven as Raven
     if (r.z > -10) {
       console.log('Raven collected item', item)
@@ -69,7 +70,7 @@ export default class MainScene extends Phaser.Scene {
     return false
   }
 
-  enterNest(raven: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) {
+  enterNest = (raven: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) => {
     const r = raven as Raven
     if (r.z > -10) {
       console.log('Raven interacted with nest')

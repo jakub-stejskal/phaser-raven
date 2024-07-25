@@ -4,6 +4,7 @@ export default class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('nest', 'assets/img/nest.png')
     this.load.spritesheet('raven-walking', 'assets/img/raven-walking.png', { frameWidth: 64, frameHeight: 64 })
     this.load.spritesheet('raven-flying', 'assets/img/raven-flying.png', { frameWidth: 64, frameHeight: 64 })
     this.load.atlas('itemsAtlas', 'assets/img/items_4x.png', 'assets/img/items_4x.json')
