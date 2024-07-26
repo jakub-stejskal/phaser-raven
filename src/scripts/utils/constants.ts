@@ -16,7 +16,7 @@ export const fatCitizen: CitizenType = {
   width: 100,
   velocity: 40,
   attackRange: 10,
-  sprite: 'childNpc'
+  sprite: 'fatCitizen'
 }
 export const skinnyCitizen: CitizenType = {
   type: 'Skinny',

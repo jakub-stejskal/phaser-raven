@@ -55,10 +55,10 @@ export default class Citizen extends Phaser.GameObjects.Container {
   }
 
   setupAnimations() {
-    if (!this.scene.anims.exists('npc-walk')) {
+    if (!this.scene.anims.exists(`npc-walk-${this.citizenType.sprite}`)) {
       this.scene.anims.create({
-        key: 'npc-walk',
-        frames: this.scene.anims.generateFrameNumbers('childNpc', { start: 0, end: 3 }),
+        key: `npc-walk-${this.citizenType.sprite}`,
+        frames: this.scene.anims.generateFrameNumbers(this.citizenType.sprite, { start: 0, end: 3 }),
         frameRate: 10,
         repeat: -1
       })
@@ -75,7 +75,7 @@ export default class Citizen extends Phaser.GameObjects.Container {
     }
 
     if (!this.isGuarded) {
-      this.citizenSprite.anims.play('npc-walk', true)
+      this.citizenSprite.anims.play(`npc-walk-${this.citizenType.sprite}`, true)
     }
 
     // Check if the citizen has reached the target position
