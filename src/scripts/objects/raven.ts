@@ -1,6 +1,7 @@
 import Item from './item'
 import Nest from './nest'
 import config from '../config'
+import MainScene from '../scenes/mainScene'
 
 interface WASD {
   W: Phaser.Input.Keyboard.Key
@@ -17,6 +18,7 @@ export default class Raven extends Phaser.GameObjects.Container {
   cursors: Phaser.Types.Input.Keyboard.CursorKeys
   keys: WASD
   body: Phaser.Physics.Arcade.Body
+  scene: MainScene
 
   items: Item[]
   totalWeight: number
@@ -197,6 +199,9 @@ export default class Raven extends Phaser.GameObjects.Container {
   }
 
   die() {
-    this.scene.scene.restart()
+    //TODO not sure this is the correct way to do it. Maybe add a "dead" flag and check it in the MainScene?
+    this.scene.gameOver = true
+    // this.scene.scene.restart()
+    // Handle player's death (e.g., reset position, reduce score, etc.)
   }
 }

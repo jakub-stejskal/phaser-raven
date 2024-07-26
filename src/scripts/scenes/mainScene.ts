@@ -19,6 +19,8 @@ export default class MainScene extends Phaser.Scene {
   itemsGroup: Phaser.GameObjects.Group
   citizenGroup: Phaser.GameObjects.Group
   shadowBlightGroup: Phaser.GameObjects.Group
+  gameOverText: Phaser.GameObjects.Text
+  gameOver: boolean = false
 
   debugGraphics: Phaser.GameObjects.Graphics[] = []
 
@@ -45,9 +47,31 @@ export default class MainScene extends Phaser.Scene {
     this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem)
     this.physics.add.overlap(this.raven, this.nest, this.enterNest)
     this.physics.add.overlap(this.raven, this.citizenGroup, this.alertCitizen)
+
+    this.gameOverText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, 'Game Over', {
+      fontSize: '64px',
+      color: '#c02060',
+      backgroundColor: 'rgba(64,224,162,0.5)'
+    })
+    this.gameOverText.setOrigin(0.5)
+    this.gameOverText.setVisible(false)
   }
 
   update() {
+    if (this.gameOverText.visible) {
+      return
+    }
+    if (this.gameOver) {
+      this.gameOverText.setVisible(true)
+
+      this.tweens.pauseAll()
+      this.physics.pause()
+      this.anims.pauseAll()
+      // Stop player input
+      this.input.keyboard.removeAllListeners()
+      return
+    }
+
     this.raven.update()
     this.statusBar.updateHealth(this.raven.health)
     this.statusBar.updateStamina(this.raven.stamina)

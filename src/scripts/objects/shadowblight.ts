@@ -33,6 +33,8 @@ export default class Shadowblight extends Phaser.GameObjects.Ellipse {
     })
   }
 
+  //TODO Potential behaviour: when flying, it actively hunts your shadow. When on the ground, randomly walking/sniffing/waiting?
+
   randomMove() {
     // Random movement within the screen bounds, avoiding the nest area
     const bounds = this.scene.physics.world.bounds
