@@ -3,12 +3,15 @@ import Nest from '../objects/nest'
 import Item from '../objects/item'
 import config from '../config'
 import { MATERIALS } from '../objects/types'
+import {childNpc, fatNpc, NpcType, skinnyNpc} from "../objects/types";
+import Npc from "../objects/npc";
 
 export default class MainScene extends Phaser.Scene {
   healthBar: Phaser.GameObjects.Graphics
   staminaBar: Phaser.GameObjects.Graphics
   raven: Raven
   itemsGroup: Phaser.GameObjects.Group
+  npcGroup: Phaser.GameObjects.Group
   nest: Nest
 
   debugGraphics: Phaser.GameObjects.Graphics[] = []
@@ -31,7 +34,13 @@ export default class MainScene extends Phaser.Scene {
       runChildUpdate: true
     })
 
+    this.npcGroup = this.physics.add.group({
+      classType: Npc,
+      runChildUpdate: true
+    })
+
     this.addItem()
+    this.addNpc()
     this.updateBars()
 
     this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem)
@@ -41,6 +50,10 @@ export default class MainScene extends Phaser.Scene {
   update() {
     this.raven.update()
     this.updateBars()
+
+    if (Math.floor(Math.random() * 10) == 1) {
+      this.addNpc();
+    }
 
     if (config.DEBUG) {
       this.updateDebugGraphics()
@@ -58,6 +71,25 @@ export default class MainScene extends Phaser.Scene {
       MATERIALS[Math.floor(Math.random() * MATERIALS.length)]
     )
     this.itemsGroup.add(item)
+  }
+
+  addNpc() {
+    function generateNpcType() {
+      const typeGenerator = Math.floor(Math.random() * 3);
+      switch (typeGenerator) {
+        case 0: return childNpc
+        case 1: return fatNpc
+        case 2: return skinnyNpc
+        default: return fatNpc
+      }
+    }
+
+    const npcType : NpcType = generateNpcType();
+
+    const npc = new Npc(this, Math.floor(Math.random() * 1280),
+        Math.floor(Math.random() * 720), npcType)
+
+    this.npcGroup.add(npc);
   }
 
   collectItem = (raven: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) => {
