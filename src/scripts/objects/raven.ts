@@ -151,6 +151,7 @@ export default class Raven extends Phaser.GameObjects.Container {
   interactWithNest(nest: Nest) {
     this.nest = nest
     nest.storeItems(this.items)
+    nest.healRaven(this)
     this.items = []
     this.totalWeight = 0
   }

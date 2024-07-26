@@ -1,8 +1,10 @@
+import MainScene from '../scenes/mainScene'
 import Item from './item'
 import Raven from './raven'
 import { UpgradeType } from './types'
 
 export default class Nest extends Phaser.Physics.Arcade.Sprite {
+  scene: MainScene
   essence: number
   materials: { [key: string]: number }
   essenceText: Phaser.GameObjects.Text
@@ -80,7 +82,7 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
 
   healRaven(raven: Raven): void {
     // Heal the raven if it's close to the nest
-    if (Phaser.Math.Distance.Between(raven.x, raven.y, this.x, this.y) < 100) {
+    if (Phaser.Math.Distance.BetweenPoints(raven, this) < 100) {
       raven.recoverHealth(1) // Adjust healing rate as needed
     }
   }

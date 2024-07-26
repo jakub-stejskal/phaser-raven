@@ -1,37 +1,37 @@
 import Item from './item'
-import {NpcType} from "./types";
+import { CitizenType as CitizenType } from './types'
 
-export default class Npc extends Phaser.GameObjects.Container {
+export default class Citizen extends Phaser.GameObjects.Container {
   shadow: Phaser.GameObjects.Ellipse
-  npcSprite: Phaser.GameObjects.Sprite
-  npcType: NpcType
+  citizenSprite: Phaser.GameObjects.Sprite
+  citizenType: CitizenType
   body: Phaser.Physics.Arcade.Body
   items: Item[]
   z: number
   velocityZ: number
 
-  constructor(scene: Phaser.Scene, x: number, y: number, npcType: NpcType) {
+  constructor(scene: Phaser.Scene, x: number, y: number, citizenType: CitizenType) {
     super(scene, x, y)
 
     this.scene = scene
     this.z = 0
     this.velocityZ = 0
     this.items = []
-    this.npcType = npcType;
+    this.citizenType = citizenType
 
     // Add the container to the scene
     this.scene.add.existing(this)
     this.scene.physics.add.existing(this)
     // center collision box
-    this.body.setSize(this.npcType.width, this.npcType.height)
+    this.body.setSize(this.citizenType.width, this.citizenType.height)
     // this.body.setOffset(-20, -10)
     // this.body.setCollideWorldBounds(true)
 
     // Initialize raven and its shadow and add them to the container
-    this.shadow = this.scene.add.ellipse(0, 20, this.npcType.width, (this.npcType.height / 2), 0xffff00, 0.2)
-    this.npcSprite = this.scene.add.sprite(0, -this.z, npcType.sprite)
+    this.shadow = this.scene.add.ellipse(0, 20, this.citizenType.width, this.citizenType.height / 2, 0xffff00, 0.2)
+    this.citizenSprite = this.scene.add.sprite(0, -this.z, citizenType.sprite)
     this.add(this.shadow)
-    this.add(this.npcSprite)
+    this.add(this.citizenSprite)
 
     // Setup animations
     this.setupAnimations()
@@ -50,8 +50,8 @@ export default class Npc extends Phaser.GameObjects.Container {
 
   update() {
     // Reset horizontal velocity
-    this.body.setVelocity(this.npcType.velocity, 0);
-    this.npcSprite.anims.play('npc-walk', true)
+    this.body.setVelocity(this.citizenType.velocity, 0)
+    this.citizenSprite.anims.play('npc-walk', true)
   }
 
   die() {

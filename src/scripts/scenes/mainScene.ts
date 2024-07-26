@@ -3,15 +3,22 @@ import Nest from '../objects/nest'
 import Item from '../objects/item'
 import config from '../config'
 import { MATERIALS } from '../objects/types'
-import {childNpc, fatNpc, NpcType, skinnyNpc} from "../objects/types";
-import Npc from "../objects/npc";
+import {
+  childCitizen as childCitizen,
+  fatCitizen as fatCitizen,
+  CitizenType as CitizenType,
+  skinnyCitizen as skinnyCitizen
+} from '../objects/types'
+import Citizen from '../objects/npc'
+import Shadowblight from '../objects/shadowblight'
 
 export default class MainScene extends Phaser.Scene {
   healthBar: Phaser.GameObjects.Graphics
   staminaBar: Phaser.GameObjects.Graphics
   raven: Raven
   itemsGroup: Phaser.GameObjects.Group
-  npcGroup: Phaser.GameObjects.Group
+  citizenGroup: Phaser.GameObjects.Group
+  shadowBlightGroup: Phaser.GameObjects.Group
   nest: Nest
 
   debugGraphics: Phaser.GameObjects.Graphics[] = []
@@ -34,13 +41,19 @@ export default class MainScene extends Phaser.Scene {
       runChildUpdate: true
     })
 
-    this.npcGroup = this.physics.add.group({
-      classType: Npc,
+    this.citizenGroup = this.physics.add.group({
+      classType: Citizen,
+      runChildUpdate: true
+    })
+
+    this.shadowBlightGroup = this.physics.add.group({
+      classType: Shadowblight,
       runChildUpdate: true
     })
 
     this.addItem()
-    this.addNpc()
+    this.addCitizen()
+    this.addShadowBlight()
     this.updateBars()
 
     this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem)
@@ -51,8 +64,8 @@ export default class MainScene extends Phaser.Scene {
     this.raven.update()
     this.updateBars()
 
-    if (Math.floor(Math.random() * 10) == 1) {
-      this.addNpc();
+    if (Math.floor(Math.random() * 100) == 1) {
+      this.addCitizen()
     }
 
     if (config.DEBUG) {
@@ -73,23 +86,29 @@ export default class MainScene extends Phaser.Scene {
     this.itemsGroup.add(item)
   }
 
-  addNpc() {
-    function generateNpcType() {
-      const typeGenerator = Math.floor(Math.random() * 3);
+  addCitizen() {
+    function generateCitizenType() {
+      const typeGenerator = Math.floor(Math.random() * 3)
       switch (typeGenerator) {
-        case 0: return childNpc
-        case 1: return fatNpc
-        case 2: return skinnyNpc
-        default: return fatNpc
+        case 0:
+          return childCitizen
+        case 1:
+          return fatCitizen
+        case 2:
+          return skinnyCitizen
+        default:
+          return fatCitizen
       }
     }
 
-    const npcType : NpcType = generateNpcType();
+    const citizenType: CitizenType = generateCitizenType()
+    const citizen = new Citizen(this, Math.floor(Math.random() * 1280), Math.floor(Math.random() * 720), citizenType)
+    this.citizenGroup.add(citizen)
+  }
 
-    const npc = new Npc(this, Math.floor(Math.random() * 1280),
-        Math.floor(Math.random() * 720), npcType)
-
-    this.npcGroup.add(npc);
+  addShadowBlight() {
+    const shadowBlight = new Shadowblight(this, Math.floor(Math.random() * 1280), Math.floor(Math.random() * 720))
+    this.shadowBlightGroup.add(shadowBlight)
   }
 
   collectItem = (raven: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) => {
@@ -111,14 +130,22 @@ export default class MainScene extends Phaser.Scene {
   }
 
   updateBars() {
-    // Health Bar
+    // Health Bar Background (max value)
     this.healthBar.clear()
-    this.healthBar.fillStyle(0x990000, 1)
+    this.healthBar.fillStyle(0x660000, 1)
+    this.healthBar.fillRect(20, 20, 200, 5)
+
+    // Health Bar Current Value
+    this.healthBar.fillStyle(0xff0000, 1)
     this.healthBar.fillRect(20, 20, (this.raven.health / config.HEALTH_MAX) * 200, 5)
 
-    // Stamina Bar
+    // Stamina Bar Background (max value)
     this.staminaBar.clear()
-    this.staminaBar.fillStyle(0xdddd00, 1)
+    this.staminaBar.fillStyle(0x666600, 1)
+    this.staminaBar.fillRect(20, 30, 200, 5)
+
+    // Stamina Bar Current Value
+    this.staminaBar.fillStyle(0xffff00, 1)
     this.staminaBar.fillRect(20, 30, (this.raven.stamina / config.STAMINA_MAX) * 200, 5)
   }
 
