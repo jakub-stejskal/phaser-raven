@@ -1,4 +1,4 @@
-import { Material } from './types'
+import { Material } from '../utils/types'
 
 export default class Item extends Phaser.Physics.Arcade.Sprite {
   material: Material

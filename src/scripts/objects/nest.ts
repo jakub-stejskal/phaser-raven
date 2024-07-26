@@ -1,7 +1,7 @@
 import MainScene from '../scenes/mainScene'
 import Item from './item'
 import Raven from './raven'
-import { UpgradeType } from './types'
+import { UpgradeType } from '../utils/types'
 
 export default class Nest extends Phaser.Physics.Arcade.Sprite {
   scene: MainScene

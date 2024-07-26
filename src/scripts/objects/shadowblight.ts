@@ -9,7 +9,7 @@ export default class Shadowblight extends Phaser.GameObjects.Ellipse {
   hitCooldown: number
 
   constructor(scene: MainScene, x: number, y: number) {
-    super(scene, x, y, 30, 60, 0x000000)
+    super(scene, x, y, 60, 120, 0x000000)
     this.scene = scene
     this.damage = 10
     this.moveSpeed = 50
@@ -39,10 +39,10 @@ export default class Shadowblight extends Phaser.GameObjects.Ellipse {
     let targetX = Phaser.Math.Between(bounds.left, bounds.right)
     let targetY = Phaser.Math.Between(bounds.top, bounds.bottom)
 
+    // TODO: Fix this. It's not working as intended
     // Assuming the nest is at the center, avoid the central area
     const nestAvoidRadius = 500
-    const nestX = bounds.centerX
-    const nestY = bounds.centerY
+    const { x: nestX, y: nestY } = this.scene.nest.getCenter()
     while (Phaser.Math.Distance.Between(targetX, targetY, nestX, nestY) < nestAvoidRadius) {
       targetX = Phaser.Math.Between(bounds.left, bounds.right)
       targetY = Phaser.Math.Between(bounds.top, bounds.bottom)

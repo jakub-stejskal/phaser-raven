@@ -29,7 +29,6 @@ export default class Raven extends Phaser.GameObjects.Container {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y)
 
-    this.scene = scene
     this.z = 0
     this.velocityZ = 0
     this.items = []
@@ -62,19 +61,22 @@ export default class Raven extends Phaser.GameObjects.Container {
   }
 
   setupAnimations() {
-    this.scene.anims.create({
-      key: 'fly',
-      frames: this.scene.anims.generateFrameNumbers('raven-flying', { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: -1
-    })
-
-    this.scene.anims.create({
-      key: 'walk',
-      frames: this.scene.anims.generateFrameNumbers('raven-walking', { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: -1
-    })
+    if (!this.scene.anims.exists('raven-flying')) {
+      this.scene.anims.create({
+        key: 'fly',
+        frames: this.scene.anims.generateFrameNumbers('raven-flying', { start: 0, end: 3 }),
+        frameRate: 10,
+        repeat: -1
+      })
+    }
+    if (!this.scene.anims.exists('raven-walking')) {
+      this.scene.anims.create({
+        key: 'walk',
+        frames: this.scene.anims.generateFrameNumbers('raven-walking', { start: 0, end: 3 }),
+        frameRate: 10,
+        repeat: -1
+      })
+    }
   }
 
   update() {
@@ -195,6 +197,6 @@ export default class Raven extends Phaser.GameObjects.Container {
   }
 
   die() {
-    // Handle player's death (e.g., reset position, reduce score, etc.)
+    this.scene.scene.restart()
   }
 }

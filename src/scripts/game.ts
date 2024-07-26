@@ -2,6 +2,7 @@ import 'phaser'
 import MainScene from './scenes/mainScene'
 import PreloadScene from './scenes/preloadScene'
 import { Types } from 'phaser'
+import globalConfig from './config'
 
 const DEFAULT_WIDTH = 1280
 const DEFAULT_HEIGHT = 720
@@ -20,7 +21,7 @@ const config: Types.Core.GameConfig = {
   physics: {
     default: 'arcade',
     arcade: {
-      debug: true
+      debug: globalConfig.DEBUG
     }
   }
 }
