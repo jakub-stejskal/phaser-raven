@@ -8,6 +8,8 @@ import CitizenFactory from '../utils/citizen-factory'
 import ItemFactory from '../utils/item-factory'
 import StatusBar from '../objects/statusBar'
 import { random } from '../utils/math'
+import { fatCitizen } from '../utils/constants'
+import Cat from '../objects/cat'
 
 export default class MainScene extends Phaser.Scene {
   statusBar: StatusBar
@@ -20,6 +22,7 @@ export default class MainScene extends Phaser.Scene {
   itemsGroup: Phaser.GameObjects.Group
   citizenGroup: Phaser.GameObjects.Group
   shadowBlightGroup: Phaser.GameObjects.Group
+  catGroup: Phaser.GameObjects.Group
   gameOverText: Phaser.GameObjects.Text
   gameOver: boolean = false
 
@@ -43,13 +46,22 @@ export default class MainScene extends Phaser.Scene {
     this.itemsGroup = this.physics.add.group({ classType: Item, runChildUpdate: true })
     this.citizenGroup = this.physics.add.group({ classType: Citizen, runChildUpdate: true })
     this.shadowBlightGroup = this.physics.add.group({ classType: Shadowblight, runChildUpdate: true })
+    this.catGroup = this.physics.add.group({ classType: Cat, runChildUpdate: true })
 
     this.addShadowblight()
+    this.addCat()
+
+    // // TODO: Remove this. For testing purposes only
+    // const item = this.itemFactory.createItem(0, 0)
+    // this.itemsGroup.add(item)
+    // const citizen = new Citizen(this, 0, 0, config.SCENE_WIDTH, config.SCENE_HEIGHT, fatCitizen)
+    // citizen.giveItem(item)
+    // this.citizenGroup.add(citizen)
 
     // Collision handlers
-    this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem)
-    this.physics.add.overlap(this.raven, this.nest, this.enterNest)
-    this.physics.add.overlap(this.raven, this.citizenGroup, this.alertCitizen)
+    this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem, undefined, this)
+    this.physics.add.overlap(this.raven, this.nest, this.enterNest, undefined, this)
+    this.physics.add.overlap(this.raven, this.citizenGroup, this.alertCitizen, undefined, this)
 
     // Graphics
     this.addDamageOverlay()
@@ -100,9 +112,19 @@ export default class MainScene extends Phaser.Scene {
     this.shadowBlightGroup.add(shadowBlight)
   }
 
+  addCat() {
+    const PADDING = 100
+    const cat = new Cat(
+      this,
+      random(PADDING, config.SCENE_WIDTH - PADDING),
+      random(PADDING, config.SCENE_HEIGHT - PADDING)
+    )
+    this.catGroup.add(cat)
+  }
+
   // Collision handlers
 
-  collectItem = (ravenObj: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) => {
+  collectItem(ravenObj: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) {
     const raven = ravenObj as Raven
     if (raven.z > -10 && raven.collectItem(item as Item)) {
       return true
@@ -110,7 +132,7 @@ export default class MainScene extends Phaser.Scene {
     return false
   }
 
-  enterNest = (ravenObj: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) => {
+  enterNest(ravenObj: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) {
     const raven = ravenObj as Raven
     if (raven.z > -10) {
       raven.interactWithNest(nest as Nest)
@@ -145,6 +167,10 @@ export default class MainScene extends Phaser.Scene {
   }
 
   flashDamage() {
+    if (this.gameOver) {
+      return
+    }
+
     this.damageOverlay.setAlpha(1)
     this.tweens.add({
       targets: this.damageOverlay,

@@ -13,6 +13,8 @@ export default class Citizen extends Phaser.GameObjects.Container {
   alertTimer: Phaser.Time.TimerEvent
   attackCooldownTimer: Phaser.Time.TimerEvent
 
+  debugText = this.scene.add.text(this.x, this.y, '', { fontSize: '12px', color: '#ffffff' })
+
   targetX: number
   targetY: number
 
@@ -45,6 +47,8 @@ export default class Citizen extends Phaser.GameObjects.Container {
     this.citizenSprite = this.scene.add.sprite(0, 0, citizenType.sprite)
     this.add(this.shadow)
     this.add(this.citizenSprite)
+
+    this.debugText.setDepth(Number.MAX_SAFE_INTEGER)
 
     // Setup animations
     this.setupAnimations()
@@ -81,6 +85,8 @@ export default class Citizen extends Phaser.GameObjects.Container {
     if (Phaser.Math.Distance.Between(this.x, this.y, this.targetX, this.targetY) < 5) {
       this.destroy()
     }
+
+    this.depth = this.y + this.height / 2
   }
 
   alert(raven: Raven) {

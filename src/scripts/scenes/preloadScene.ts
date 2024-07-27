@@ -10,6 +10,7 @@ export default class PreloadScene extends Phaser.Scene {
     this.load.spritesheet('childNpc', 'assets/img/childNpc.png', { frameWidth: 40, frameHeight: 80 })
     this.load.spritesheet('fatCitizen', 'assets/img/fatCitizen.png', { frameWidth: 120, frameHeight: 100 })
     this.load.atlas('itemsAtlas', 'assets/img/items_4x.png', 'assets/img/items_4x.json')
+    this.load.spritesheet('cat', 'assets/img/cat.png', { frameWidth: 32, frameHeight: 32 })
   }
 
   create() {

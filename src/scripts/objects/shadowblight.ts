@@ -1,5 +1,4 @@
 import MainScene from '../scenes/mainScene'
-import Raven from './raven'
 
 export default class Shadowblight extends Phaser.GameObjects.Ellipse {
   scene: MainScene

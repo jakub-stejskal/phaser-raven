@@ -28,6 +28,8 @@ export default class Raven extends Phaser.GameObjects.Container {
   z: number
   velocityZ: number
 
+  debugText = this.scene.add.text(this.x, this.y, '', { fontSize: '12px', color: '#ffffff' })
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y)
 
@@ -57,6 +59,8 @@ export default class Raven extends Phaser.GameObjects.Container {
     // Setup controls
     this.cursors = this.scene.input.keyboard.createCursorKeys()
     this.keys = this.scene.input.keyboard.addKeys('W,A,S,D') as WASD
+
+    this.debugText.setDepth(Number.MAX_SAFE_INTEGER)
 
     // Setup animations
     this.setupAnimations()
@@ -130,6 +134,8 @@ export default class Raven extends Phaser.GameObjects.Container {
 
     // Adjust the shadow's scale based on height
     this.shadow.scale = 1 - (Math.abs(this.z) / 200) * 0.5
+
+    this.depth = this.y + this.height / 2
 
     this.updateItemIndicators()
 
