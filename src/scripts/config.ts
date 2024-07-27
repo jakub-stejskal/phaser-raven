@@ -1,5 +1,8 @@
 export default {
-  DEBUG: false,
+  DEBUG: true,
+
+  SCENE_WIDTH: 1280,
+  SCENE_HEIGHT: 720,
 
   HEALTH_MAX: 100,
 
@@ -17,5 +20,9 @@ export default {
   ITEM_MAX_WEIGHT_FACTOR: 0.5,
   ITEM_WEIGHT_FACTOR_COEF: 10,
 
-  CITIZEN_MAX_COUNT: 10
+  CITIZEN_MAX_COUNT: 10,
+  CITIZEN_FREQUENCY: 100,
+
+  NEST_WIDTH: 64,
+  NEST_HEIGHT: 64
 }

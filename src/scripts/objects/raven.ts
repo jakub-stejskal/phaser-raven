@@ -165,6 +165,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     if (this.health <= 0) {
       this.die()
     }
+    this.scene.flashDamage()
   }
 
   recoverHealth(amount: number) {

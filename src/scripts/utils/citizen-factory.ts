@@ -1,5 +1,7 @@
+import config from '../config'
 import Citizen from '../objects/citizen'
 import { childCitizen, fatCitizen, skinnyCitizen } from './constants'
+import { random } from './math'
 import { CitizenType } from './types'
 
 export default class CitizenFactory {
@@ -11,7 +13,7 @@ export default class CitizenFactory {
 
   createCitizen(): Citizen {
     function generateCitizenType() {
-      const typeGenerator = Math.floor(Math.random() * 3)
+      const typeGenerator = random(0, 4)
       switch (typeGenerator) {
         case 0:
           return childCitizen
@@ -29,26 +31,27 @@ export default class CitizenFactory {
   }
 
   generateInitialLocation(citizenType: CitizenType): { x: number; y: number } {
-    const edge = Math.floor(Math.random() * 4) // 0: top, 1: bottom, 2: left, 3: right
+    const edge = random(0, 4) // 0: top, 1: bottom, 2: left, 3: right
     let x = 0
     let y = 0
 
+    const { width: sceneWidth, height: sceneHeight } = this.scene.cameras.main
     switch (edge) {
       case 0: // Top
-        x = Math.floor(Math.random() * this.scene.cameras.main.width)
+        x = random(0, sceneWidth - config.NEST_WIDTH)
         y = -citizenType.height // Just above the screen
         break
       case 1: // Bottom
-        x = Math.floor(Math.random() * this.scene.cameras.main.width)
+        x = random(0, sceneWidth - config.NEST_WIDTH)
         y = this.scene.cameras.main.height + citizenType.height // Just below the screen
         break
       case 2: // Left
         x = -citizenType.width // Just left of the screen
-        y = Math.floor(Math.random() * this.scene.cameras.main.height)
+        y = random(config.NEST_HEIGHT, sceneHeight)
         break
       case 3: // Right
         x = this.scene.cameras.main.width + citizenType.width // Just right of the screen
-        y = Math.floor(Math.random() * this.scene.cameras.main.height)
+        y = random(config.NEST_HEIGHT, sceneHeight)
         break
     }
 

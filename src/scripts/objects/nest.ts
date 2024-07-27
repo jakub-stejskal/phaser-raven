@@ -18,11 +18,12 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
     this.scene.add.existing(this)
     this.scene.physics.add.existing(this)
 
-    this.essenceText = this.scene.add.text(this.x - this.width / 2, this.y + 50, '', {
+    const RESOURCES_OFFSET = 40
+    this.essenceText = this.scene.add.text(this.x - this.width / 2 - RESOURCES_OFFSET, this.y + 50, '', {
       fontSize: '14px',
       color: '#ffffff'
     })
-    this.materialsText = this.scene.add.text(this.x - this.width / 2, this.y + 70, '', {
+    this.materialsText = this.scene.add.text(this.x - this.width / 2 - RESOURCES_OFFSET, this.y + 70, '', {
       fontSize: '14px',
       color: '#ffffff'
     })
@@ -92,7 +93,7 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
     this.materialsText.setText(
       `Materials: \n${Object.keys(this.materials)
         .map(key => `${key}: ${this.materials[key]}`)
-        .join(', \n')}`
+        .join('\n')}`
     )
   }
 }

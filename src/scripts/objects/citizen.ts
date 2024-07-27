@@ -1,4 +1,3 @@
-import config from '../config'
 import Item from './item'
 import Raven from './raven'
 import { CitizenType as CitizenType } from '../utils/types'
