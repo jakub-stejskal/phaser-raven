@@ -13,15 +13,16 @@ export default class CitizenFactory {
 
   createCitizen(): Citizen {
     function generateCitizenType() {
-      const typeGenerator = random(0, 4)
-      switch (typeGenerator) {
-        case 0:
-          return childCitizen
-        case 1:
-          return fatCitizen
-        default:
-          return skinnyCitizen
-      }
+      // const typeGenerator = random(0, 4)
+      // switch (typeGenerator) {
+      //   case 0:
+      //     return childCitizen
+      //   case 1:
+      //     return fatCitizen
+      //   default:
+      //     return skinnyCitizen
+      // }
+      return fatCitizen
     }
 
     const citizenType: CitizenType = generateCitizenType()

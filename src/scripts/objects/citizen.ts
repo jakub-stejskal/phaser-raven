@@ -11,9 +11,9 @@ export default class Citizen extends Phaser.GameObjects.Container {
   isGuarded: boolean
   isWalking: boolean
   alertTimer: Phaser.Time.TimerEvent
-  attackCooldownTimer: Phaser.Time.TimerEvent
+  attackCooldownTimer: Phaser.Time.TimerEvent | null
 
-  debugText = this.scene.add.text(this.x, this.y, '', { fontSize: '12px', color: '#ffffff' })
+  debugText: Phaser.GameObjects.Text
 
   targetX: number
   targetY: number
@@ -48,7 +48,10 @@ export default class Citizen extends Phaser.GameObjects.Container {
     this.add(this.shadow)
     this.add(this.citizenSprite)
 
+    // Debug text (optional)
+    this.debugText = this.scene.add.text(this.x, this.y, '', { fontSize: '12px', color: '#ffffff' })
     this.debugText.setDepth(Number.MAX_SAFE_INTEGER)
+    this.add(this.debugText)
 
     // Setup animations
     this.setupAnimations()
@@ -79,6 +82,9 @@ export default class Citizen extends Phaser.GameObjects.Container {
 
     if (!this.isGuarded) {
       this.citizenSprite.anims.play(`npc-walk-${this.citizenType.sprite}`, true)
+    } else {
+      // Ensure movement stops when guarded
+      this.stopMoving()
     }
 
     // Check if the citizen has reached the target position
@@ -90,34 +96,49 @@ export default class Citizen extends Phaser.GameObjects.Container {
   }
 
   alert(raven: Raven) {
-    if (!this.isGuarded) {
-      this.isGuarded = true
-      this.citizenSprite.setTint(0xff0000) // Change color to indicate alert status
-      this.stopMoving()
-
-      // Revert back to normal after a certain time
+    if (!this.isGuarded && !this.alertTimer) {
+      // Start a delay before becoming alerted
       this.alertTimer = this.scene.time.addEvent({
-        delay: 5000,
-        callback: () => this.calmDown(),
+        delay: 1000, // 1 second delay
+        callback: () => {
+          this.isGuarded = true
+          this.citizenSprite.setTint(0xff0000) // Change color to indicate alert status
+          this.stopMoving()
+
+          // Revert back to normal after a certain time
+          this.alertTimer = this.scene.time.addEvent({
+            delay: 5000,
+            callback: () => this.calmDown(),
+            callbackScope: this
+          })
+
+          this.attackRaven(raven) // Start attacking after becoming alerted
+        },
         callbackScope: this
       })
     }
-    this.attackRaven(raven)
   }
 
   calmDown() {
+    console.log('Citizen is calming down')
     this.isGuarded = false
     this.citizenSprite.clearTint()
     this.startWalking()
+    if (this.attackCooldownTimer) {
+      this.attackCooldownTimer.remove() // Stop the attack loop
+      this.attackCooldownTimer = null
+    }
   }
 
   stopMoving() {
     this.isWalking = false
+    this.body.setVelocity(0, 0) // Ensure the citizen stops moving
   }
 
   giveItem(item: Item) {
     this.items.push(item)
     this.add(item)
+    item.owner = this
   }
 
   stealItem() {
@@ -130,20 +151,39 @@ export default class Citizen extends Phaser.GameObjects.Container {
   }
 
   attackRaven(raven: Raven) {
+    console.log('Attempting to attack Raven')
+
     if (!this.attackCooldownTimer) {
+      console.log('Setting up attack cooldown timer')
+
       this.attackCooldownTimer = this.scene.time.addEvent({
         delay: 1000, // Attack every second
         callback: () => {
+          console.log('Cooldown elapsed, checking conditions for attack')
+
           if (
             this.isGuarded &&
             Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y) < this.citizenType.attackRange
           ) {
+            console.log('Attacking Raven, removing items')
             raven.takeDamage(5) // Assume some damage value
+
+            // Remove all items from the Raven when attacked
+            raven.items = [] // Assuming Raven has an items array
+          } else {
+            console.log(
+              'Conditions not met for attack: Guarded:',
+              this.isGuarded,
+              'Distance:',
+              Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y)
+            )
           }
         },
         callbackScope: this,
         loop: true
       })
+    } else {
+      console.log('Attack already in cooldown')
     }
   }
 }

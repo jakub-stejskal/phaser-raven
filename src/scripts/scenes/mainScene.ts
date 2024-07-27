@@ -8,7 +8,6 @@ import CitizenFactory from '../utils/citizen-factory'
 import ItemFactory from '../utils/item-factory'
 import StatusBar from '../objects/statusBar'
 import { random } from '../utils/math'
-import { fatCitizen } from '../utils/constants'
 import Cat from '../objects/cat'
 
 export default class MainScene extends Phaser.Scene {
@@ -124,9 +123,11 @@ export default class MainScene extends Phaser.Scene {
 
   // Collision handlers
 
-  collectItem(ravenObj: Phaser.GameObjects.GameObject, item: Phaser.GameObjects.GameObject) {
+  collectItem(ravenObj: Phaser.GameObjects.GameObject, itemObj: Phaser.GameObjects.GameObject) {
     const raven = ravenObj as Raven
-    if (raven.z > -10 && raven.collectItem(item as Item)) {
+    const item = itemObj as Item
+
+    if (raven.z > -10 && raven.collectItem(item)) {
       return true
     }
     return false

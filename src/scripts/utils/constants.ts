@@ -7,7 +7,7 @@ export const childCitizen: CitizenType = {
   height: 80,
   width: 40,
   velocity: 60,
-  attackRange: 10,
+  attackRange: 100,
   sprite: 'childNpc'
 }
 export const fatCitizen: CitizenType = {
@@ -15,7 +15,7 @@ export const fatCitizen: CitizenType = {
   height: 120,
   width: 100,
   velocity: 40,
-  attackRange: 10,
+  attackRange: 100,
   sprite: 'fatCitizen'
 }
 export const skinnyCitizen: CitizenType = {
@@ -23,6 +23,6 @@ export const skinnyCitizen: CitizenType = {
   height: 140,
   width: 60,
   velocity: 80,
-  attackRange: 10,
+  attackRange: 100,
   sprite: 'childNpc'
 }

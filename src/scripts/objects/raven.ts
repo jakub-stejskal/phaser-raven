@@ -150,6 +150,7 @@ export default class Raven extends Phaser.GameObjects.Container {
   }
 
   collectItem(item: Item): boolean {
+    if (item.owner?.isGuarded) return false
     if (this.items.length >= config.ITEM_MAX_CARRIED) return false
 
     this.items.push(item)

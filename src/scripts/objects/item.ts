@@ -1,9 +1,11 @@
 import { Material } from '../utils/types'
+import Citizen from './citizen'
 
 export default class Item extends Phaser.Physics.Arcade.Sprite {
   material: Material
   weight: number
   essenceValue: number
+  owner: Citizen | null = null
 
   constructor(
     scene: Phaser.Scene,
