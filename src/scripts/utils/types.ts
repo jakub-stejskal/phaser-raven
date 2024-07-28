@@ -12,3 +12,9 @@ export type CitizenType = {
   attackRange: number
   sprite: string
 }
+
+export type Recipe = {
+  name: string
+  essence: number
+  materials: { [key: string]: number }
+}

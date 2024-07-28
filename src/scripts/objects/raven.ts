@@ -149,6 +149,12 @@ export default class Raven extends Phaser.GameObjects.Container {
     }
   }
 
+  //
+  isInNest(): boolean {
+    // check if nest and raven collide
+    return (this.nest && this.scene.physics.overlap(this, this.nest)) ?? false
+  }
+
   collectItem(item: Item): boolean {
     if (item.owner?.isGuarded) return false
     if (this.items.length >= config.ITEM_MAX_CARRIED) return false

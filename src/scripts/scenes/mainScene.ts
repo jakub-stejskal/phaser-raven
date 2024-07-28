@@ -57,6 +57,12 @@ export default class MainScene extends Phaser.Scene {
     // citizen.giveItem(item)
     // this.citizenGroup.add(citizen)
 
+    this.input.keyboard.on('keydown-SHIFT', () => {
+      if (this.raven.isInNest()) {
+        this.enterLabTransition()
+      }
+    })
+
     // Collision handlers
     this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem, undefined, this)
     this.physics.add.overlap(this.raven, this.nest, this.enterNest, undefined, this)
@@ -119,6 +125,21 @@ export default class MainScene extends Phaser.Scene {
       random(PADDING, config.SCENE_HEIGHT - PADDING)
     )
     this.catGroup.add(cat)
+  }
+
+  // Scene transitions
+
+  gameOverTransition() {
+    this.gameOver = true
+  }
+
+  enterLabTransition() {
+    this.scene.pause()
+    this.scene.launch('LabScene', { raven: this.raven, nest: this.nest })
+  }
+
+  resumeFromLab() {
+    this.scene.resume()
   }
 
   // Collision handlers
