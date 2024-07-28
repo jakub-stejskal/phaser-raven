@@ -73,7 +73,7 @@ export default class Cat extends Phaser.GameObjects.Container {
 
     // Check if the Raven is within the jump range
     const distanceToRaven = Phaser.Math.Distance.Between(this.x, this.y, this.scene.raven.x, this.scene.raven.y)
-    if (distanceToRaven < this.jumpRange) {
+    if (distanceToRaven < this.jumpRange && distanceToRaven > 20) {
       if (this.scene.raven.z > -5) {
         this.jumpTowardsRaven()
       } else {
