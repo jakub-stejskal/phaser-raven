@@ -16,5 +16,5 @@ export type CitizenType = {
 export type Recipe = {
   name: string
   essence: number
-  materials: { [key: string]: number }
+  materials: { material: Material; cost: number }[]
 }

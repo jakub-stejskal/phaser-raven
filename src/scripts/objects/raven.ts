@@ -2,6 +2,7 @@ import Item from './item'
 import Nest from './nest'
 import config from '../config'
 import MainScene from '../scenes/mainScene'
+import { Recipe } from '../utils/types'
 
 interface WASD {
   W: Phaser.Input.Keyboard.Key
@@ -212,10 +213,18 @@ export default class Raven extends Phaser.GameObjects.Container {
     }
   }
 
+  applyUpgrade(upgrade: Recipe) {
+    // TODO: Implement upgrade application
+    console.log('Applying upgrade to Raven:', upgrade)
+  }
+
   die() {
     //TODO not sure this is the correct way to do it. Maybe add a "dead" flag and check it in the MainScene?
     this.scene.gameOver = true
-    // this.scene.scene.restart()
+    // wait for a few seconds before restarting the scene
+    this.scene.time.delayedCall(3000, () => {
+      this.scene.scene.restart()
+    })
     // Handle player's death (e.g., reset position, reduce score, etc.)
   }
 }

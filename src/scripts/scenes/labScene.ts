@@ -12,7 +12,7 @@ export class LabScene extends Phaser.Scene {
   nest!: Nest
   selectedMaterials: Material[] = []
   materialTexts: { text: Phaser.GameObjects.Text; material: Material }[] = []
-  cauldronTexts: Phaser.GameObjects.Text[] = []
+  cauldronTexts: { text: Phaser.GameObjects.Text }[] = []
   recipeTexts: { text: Phaser.GameObjects.Text; recipe: Recipe }[] = []
   currentSelectionIndex: number = 0
   sections = SECTIONS
@@ -52,14 +52,20 @@ export class LabScene extends Phaser.Scene {
 
   createMaterialList() {
     console.log('createMaterialList')
-    this.add.text(100, this.cameras.main.centerY - 140, 'Materials', { fontSize: '28px', color: '#fff' })
+    this.add.text(100, this.cameras.main.centerY - 140, 'Materials', {
+      fontSize: '28px',
+      color: this.getTextColor(true)
+    })
 
     this.materialTexts = []
     let y = this.cameras.main.centerY - 100
     Object.keys(this.nest.materials).forEach(material => {
       const count = this.nest.materials[material as Material]
-      const color = count >= 10 ? '#fff' : '#aaa'
-      const text = this.add.text(100, y, `${material}: ${count}`, { fontSize: '24px', color: color })
+      const enabled = count >= 10
+      const text = this.add.text(100, y, `${material}: ${count}`, {
+        fontSize: '24px',
+        color: this.getTextColor(enabled)
+      })
       this.materialTexts.push({ text, material: material as Material })
       y += 30
     })
@@ -69,15 +75,18 @@ export class LabScene extends Phaser.Scene {
     console.log('createRecipeList')
     this.add.text(this.cameras.main.width - 300, this.cameras.main.centerY - 140, 'Recipes', {
       fontSize: '28px',
-      color: '#fff'
+      color: this.getTextColor(true)
     })
 
     this.recipeTexts = []
     let y = this.cameras.main.centerY - 100
     const recipes = this.getRecipes()
     recipes.forEach(recipe => {
-      const color = this.canAffordRecipe(recipe) ? '#fff' : '#aaa'
-      const text = this.add.text(this.cameras.main.width - 300, y, recipe.name, { fontSize: '24px', color: color })
+      const enabled = this.canAffordRecipe(recipe)
+      const text = this.add.text(this.cameras.main.width - 300, y, recipe.name, {
+        fontSize: '24px',
+        color: this.getTextColor(enabled)
+      })
       this.recipeTexts.push({ text, recipe })
       y += 30
     })
@@ -88,34 +97,40 @@ export class LabScene extends Phaser.Scene {
     this.add
       .text(this.cameras.main.width / 2, this.cameras.main.centerY - 140, 'Cauldron', {
         fontSize: '28px',
-        color: '#fff'
+        color: this.getTextColor(true)
       })
       .setOrigin(0.5, 0)
 
     this.cauldronTexts = [
-      this.add
-        .text(this.cameras.main.width / 2, this.cameras.main.centerY - 100, 'Empty', {
-          fontSize: '24px',
-          color: '#aaa'
-        })
-        .setOrigin(0.5, 0),
+      {
+        text: this.add
+          .text(this.cameras.main.width / 2, this.cameras.main.centerY - 100, 'Empty', {
+            fontSize: '24px',
+            color: this.getTextColor(false)
+          })
+          .setOrigin(0.5, 0)
+      },
 
-      this.add
-        .text(this.cameras.main.width / 2, this.cameras.main.centerY - 70, 'Empty', {
-          fontSize: '24px',
-          color: '#aaa'
-        })
-        .setOrigin(0.5, 0)
+      {
+        text: this.add
+          .text(this.cameras.main.width / 2, this.cameras.main.centerY - 70, 'Empty', {
+            fontSize: '24px',
+            color: this.getTextColor(false)
+          })
+          .setOrigin(0.5, 0)
+      }
     ]
 
     this.brewButton = this.add
       .text(this.cameras.main.width / 2, this.cameras.main.centerY - 20, 'Brew', {
         fontSize: '32px',
-        color: '#aaa'
+        color: this.getTextColor(false)
       })
       .setOrigin(0.5, 0)
-      .setInteractive()
-    this.brewButton.on('pointerdown', this.brew.bind(this))
+  }
+
+  getTextColor(enabled: boolean = true): string {
+    return enabled ? '#fff' : '#aaa'
   }
 
   updateSelectionFrame() {
@@ -135,7 +150,7 @@ export class LabScene extends Phaser.Scene {
         break
       case 'cauldron':
         if (this.currentSelectionIndex < 2) {
-          const text = this.cauldronTexts[this.currentSelectionIndex]
+          const text = this.cauldronTexts[this.currentSelectionIndex].text
           ;({ x, y, width, height } = text.getBounds())
         } else {
           ;({ x, y, width, height } = this.brewButton.getBounds())
@@ -186,12 +201,14 @@ export class LabScene extends Phaser.Scene {
   hasEnabledItemsInCurrentSection(): boolean {
     switch (this.currentSection) {
       case 'materials':
-        return this.materialTexts.some(text => text.text.style.color !== '#aaa')
+        return this.materialTexts.some(text => !this.isItemDisabled(text))
       case 'cauldron':
         // Include the brew button as an item to be enabled
-        return this.cauldronTexts.some(text => text.style.color !== '#aaa') || this.brewButton.style.color !== '#aaa'
+        return (
+          this.cauldronTexts.some(text => !this.isItemDisabled(text)) || !this.isItemDisabled({ text: this.brewButton })
+        )
       case 'recipes':
-        return this.recipeTexts.some(text => text.text.style.color !== '#aaa')
+        return this.recipeTexts.some(text => !this.isItemDisabled(text))
       default:
         return false
     }
@@ -203,18 +220,18 @@ export class LabScene extends Phaser.Scene {
       case 'materials':
         do {
           this.currentSelectionIndex = (this.currentSelectionIndex + 1) % this.materialTexts.length
-        } while (this.materialTexts[this.currentSelectionIndex].text.style.color === '#aaa')
+        } while (this.isItemDisabled(this.materialTexts[this.currentSelectionIndex]))
         break
       case 'cauldron':
         this.currentSelectionIndex = (this.currentSelectionIndex + 1) % 3
-        if (this.currentSelectionIndex < 2 && this.cauldronTexts[this.currentSelectionIndex].style.color === '#aaa') {
+        if (this.currentSelectionIndex < 2 && this.isItemDisabled(this.cauldronTexts[this.currentSelectionIndex])) {
           this.currentSelectionIndex = 2 // Skip to brew button if selected item is empty
         }
         break
       case 'recipes':
         do {
           this.currentSelectionIndex = (this.currentSelectionIndex + 1) % this.recipeTexts.length
-        } while (this.recipeTexts[this.currentSelectionIndex].text.style.color === '#aaa')
+        } while (this.isItemDisabled(this.recipeTexts[this.currentSelectionIndex]))
         break
     }
     this.updateSelectionFrame()
@@ -227,11 +244,11 @@ export class LabScene extends Phaser.Scene {
         do {
           this.currentSelectionIndex =
             (this.currentSelectionIndex - 1 + this.materialTexts.length) % this.materialTexts.length
-        } while (this.materialTexts[this.currentSelectionIndex].text.style.color === '#aaa')
+        } while (this.isItemDisabled(this.materialTexts[this.currentSelectionIndex]))
         break
       case 'cauldron':
         this.currentSelectionIndex = (this.currentSelectionIndex - 1 + 3) % 3
-        if (this.currentSelectionIndex < 2 && this.cauldronTexts[this.currentSelectionIndex].style.color === '#aaa') {
+        if (this.currentSelectionIndex < 2 && this.isItemDisabled(this.cauldronTexts[this.currentSelectionIndex])) {
           this.currentSelectionIndex = 1 // Skip to first filled item or brew button
         }
         break
@@ -239,10 +256,14 @@ export class LabScene extends Phaser.Scene {
         do {
           this.currentSelectionIndex =
             (this.currentSelectionIndex - 1 + this.recipeTexts.length) % this.recipeTexts.length
-        } while (this.recipeTexts[this.currentSelectionIndex].text.style.color === '#aaa')
+        } while (this.isItemDisabled(this.recipeTexts[this.currentSelectionIndex]))
         break
     }
     this.updateSelectionFrame()
+  }
+
+  isItemDisabled(item: { text: Phaser.GameObjects.Text }): boolean {
+    return item.text.style.color === this.getTextColor(false)
   }
 
   selectItem() {
@@ -286,25 +307,24 @@ export class LabScene extends Phaser.Scene {
   updateCauldronText() {
     console.log('updateCauldronText')
     for (let i = 0; i < 2; i++) {
-      console.log('for')
       if (this.selectedMaterials[i]) {
-        this.cauldronTexts[i].setText(this.selectedMaterials[i])
-        this.cauldronTexts[i].setFill('#fff')
+        this.cauldronTexts[i].text.setText(this.selectedMaterials[i])
+        this.cauldronTexts[i].text.setFill(this.getTextColor(true))
       } else {
-        this.cauldronTexts[i].setText('Empty')
-        this.cauldronTexts[i].setFill('#aaa')
+        this.cauldronTexts[i].text.setText('Empty')
+        this.cauldronTexts[i].text.setFill(this.getTextColor(false))
       }
     }
 
-    const fillColor = this.selectedMaterials.length === 2 ? '#fff' : '#aaa'
-    this.brewButton.setFill(fillColor)
+    const enabled = this.selectedMaterials.length === 2
+    this.brewButton.setFill(this.getTextColor(enabled))
   }
 
   selectRecipeMaterials() {
     console.log('selectRecipeMaterials')
     const recipe = this.recipeTexts[this.currentSelectionIndex].recipe
     if (this.canAffordRecipe(recipe)) {
-      this.selectedMaterials = Object.keys(recipe.materials) as Material[]
+      this.selectedMaterials = recipe.materials.map(m => m.material)
       this.updateCauldronText()
       this.updateSelectionFrame()
     }
@@ -313,30 +333,43 @@ export class LabScene extends Phaser.Scene {
   canAffordRecipe(recipe: Recipe): boolean {
     return (
       this.nest.essence >= recipe.essence &&
-      Object.keys(recipe.materials).every(
-        material => this.nest.materials[material as Material] >= recipe.materials[material]
-      )
+      recipe.materials.every(material => this.nest.materials[material.material] >= material.cost)
     )
   }
 
   brew() {
     console.log('brew')
-    if (this.selectedMaterials.length === 2 && this.nest.essence >= 10) {
-      this.nest.essence -= 10
-      if (Math.random() < 0.1) {
-        console.log('Brewing failed, adding Shadowblight')
-        ;(this.scene.get('MainScene') as MainScene).addShadowblight()
+    if (this.selectedMaterials.length === 2) {
+      const matchingRecipe = this.getRecipes().find(recipe =>
+        recipe.materials.every(
+          material =>
+            this.selectedMaterials.includes(material.material) &&
+            this.nest.materials[material.material] >= material.cost
+        )
+      )
+
+      if (matchingRecipe && this.nest.essence >= matchingRecipe.essence) {
+        this.nest.essence -= matchingRecipe.essence
+
+        if (Math.random() < 0.1) {
+          console.log('Brewing failed, adding Shadowblight')
+          ;(this.scene.get('MainScene') as MainScene).addShadowblight()
+        } else {
+          console.log('Brewing succeeded, applying upgrade')
+          this.raven.applyUpgrade(matchingRecipe)
+        }
+
+        matchingRecipe.materials.forEach(material => {
+          this.nest.materials[material.material] -= material.cost
+        })
+
+        this.selectedMaterials = []
+        this.scene.restart({ raven: this.raven, nest: this.nest })
       } else {
-        console.log('Brewing succeeded, applying upgrade')
-        // Apply the upgrade to the Raven
+        console.log('Not enough essence or materials for brewing.')
       }
-
-      this.selectedMaterials.forEach(material => {
-        this.nest.materials[material]--
-      })
-      this.selectedMaterials = []
-
-      this.scene.restart({ raven: this.raven, nest: this.nest })
+    } else {
+      console.log('Not enough materials selected.')
     }
   }
 
@@ -348,12 +381,54 @@ export class LabScene extends Phaser.Scene {
 
   getRecipes(): Recipe[] {
     return [
-      { name: 'Recipe 1', essence: 10, materials: { 'Mystic Crystals': 5, 'Precious Metals': 5 } },
-      { name: 'Recipe 2', essence: 10, materials: { 'Mystic Crystals': 5, 'Ancient Scrolls': 5 } },
-      { name: 'Recipe 3', essence: 10, materials: { 'Mystic Crystals': 5, 'Herbal Extracts': 5 } },
-      { name: 'Recipe 4', essence: 10, materials: { 'Precious Metals': 5, 'Ancient Scrolls': 5 } },
-      { name: 'Recipe 5', essence: 10, materials: { 'Precious Metals': 5, 'Herbal Extracts': 5 } },
-      { name: 'Recipe 6', essence: 10, materials: { 'Ancient Scrolls': 5, 'Herbal Extracts': 5 } }
+      {
+        name: 'Recipe 1',
+        essence: 10,
+        materials: [
+          { material: 'Mystic Crystals', cost: 5 },
+          { material: 'Precious Metals', cost: 5 }
+        ]
+      },
+      {
+        name: 'Recipe 2',
+        essence: 10,
+        materials: [
+          { material: 'Mystic Crystals', cost: 5 },
+          { material: 'Ancient Scrolls', cost: 5 }
+        ]
+      },
+      {
+        name: 'Recipe 3',
+        essence: 10,
+        materials: [
+          { material: 'Mystic Crystals', cost: 5 },
+          { material: 'Herbal Extracts', cost: 5 }
+        ]
+      },
+      {
+        name: 'Recipe 4',
+        essence: 10,
+        materials: [
+          { material: 'Precious Metals', cost: 5 },
+          { material: 'Ancient Scrolls', cost: 5 }
+        ]
+      },
+      {
+        name: 'Recipe 5',
+        essence: 10,
+        materials: [
+          { material: 'Precious Metals', cost: 5 },
+          { material: 'Herbal Extracts', cost: 5 }
+        ]
+      },
+      {
+        name: 'Recipe 6',
+        essence: 10,
+        materials: [
+          { material: 'Ancient Scrolls', cost: 5 },
+          { material: 'Herbal Extracts', cost: 5 }
+        ]
+      }
     ]
   }
 }
