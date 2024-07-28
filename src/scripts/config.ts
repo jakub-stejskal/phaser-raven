@@ -1,5 +1,5 @@
 export default {
-  DEBUG: false,
+  DEBUG: true,
 
   SCENE_WIDTH: 1280,
   SCENE_HEIGHT: 720,
@@ -24,5 +24,7 @@ export default {
   CITIZEN_FREQUENCY: 100,
 
   NEST_WIDTH: 64,
-  NEST_HEIGHT: 64
+  NEST_HEIGHT: 64,
+
+  OBJECTS_SHADOW_ALPHA: 0.2
 }

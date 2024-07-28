@@ -51,7 +51,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.body.setCollideWorldBounds(true)
 
     // Initialize raven and its shadow and add them to the container
-    this.shadow = this.scene.add.ellipse(0, 20, 40, 20, 0x000000, 0.2)
+    this.shadow = this.scene.add.ellipse(0, 20, 40, 20, 0x000000, config.OBJECTS_SHADOW_ALPHA)
     this.ravenSprite = this.scene.add.sprite(0, -this.z, 'raven-walking')
     this.itemIndicators = []
     this.add(this.shadow)

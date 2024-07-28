@@ -1,6 +1,7 @@
 import Item from './item'
 import Raven from './raven'
 import { CitizenType as CitizenType } from '../utils/types'
+import config from '../config'
 
 export default class Citizen extends Phaser.GameObjects.Container {
   shadow: Phaser.GameObjects.Ellipse
@@ -42,7 +43,7 @@ export default class Citizen extends Phaser.GameObjects.Container {
       this.citizenType.width,
       this.citizenType.height / 2,
       0x000000,
-      0.2
+      config.OBJECTS_SHADOW_ALPHA
     )
     this.citizenSprite = this.scene.add.sprite(0, 0, citizenType.sprite)
     this.add(this.shadow)

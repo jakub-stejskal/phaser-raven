@@ -1,8 +1,13 @@
+import config from '../config'
 import MainScene from '../scenes/mainScene'
 
-export default class Cat extends Phaser.GameObjects.Sprite {
+const SIZE = 16
+
+export default class Cat extends Phaser.GameObjects.Container {
   scene: MainScene
   body: Phaser.Physics.Arcade.Body
+  catSprite: Phaser.GameObjects.Sprite
+  shadow: Phaser.GameObjects.Ellipse
 
   damage: number
   moveSpeed: number
@@ -11,25 +16,36 @@ export default class Cat extends Phaser.GameObjects.Sprite {
   jumpRange: number
 
   constructor(scene: MainScene, x: number, y: number) {
-    super(scene, x, y, 'cat', 27)
+    super(scene, x, y)
     this.scene = scene
-    this.damage = 15
-    this.moveSpeed = 25
+    this.damage = 30
+    this.moveSpeed = 50
     this.lastHitTime = 0
     this.hitCooldown = 1000 // 1 second cooldown
-    this.jumpRange = 200 // Range within which the cat will jump towards the Raven
+    this.jumpRange = 300 // Range within which the cat will jump towards the Raven
 
     // Add the sprite to the scene and enable physics
     this.scene.add.existing(this)
     this.scene.physics.add.existing(this)
 
+    // Create the cat sprite
+    this.catSprite = scene.add.sprite(0, 0, 'cat', 27)
+    this.catSprite.setOrigin(0.25, 0.5) // Align bottom center
+    this.catSprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
+
+    // Create the shadow as an ellipse
+    this.shadow = this.scene.add.ellipse(0, SIZE / 2, SIZE, SIZE / 2, 0x000000, config.OBJECTS_SHADOW_ALPHA)
+    this.shadow.setOrigin(0, -0.5) // Center the ellipse
+
+    this.add(this.shadow)
+    this.add(this.catSprite)
+
     // this.setSize(16, 16) // 16x16 collision box
     this.body.setSize(16, 16) // Set the collision box size
 
-    // this.setScale(2) // This makes it 64x64
+    this.setScale(4) // This makes it 64x64
 
-    this.body.setOffset((this.width * this.scaleX) / 2 - 8, this.height * this.scaleY - 16)
-    this.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
+    // this.body.setOffset(8, this.height / 2)
 
     this.startRoaming()
   }
@@ -57,8 +73,13 @@ export default class Cat extends Phaser.GameObjects.Sprite {
 
     // Check if the Raven is within the jump range
     const distanceToRaven = Phaser.Math.Distance.Between(this.x, this.y, this.scene.raven.x, this.scene.raven.y)
-    if (this.scene.raven.z > -5 && distanceToRaven < this.jumpRange) {
-      this.jumpTowardsRaven()
+    if (distanceToRaven < this.jumpRange) {
+      if (this.scene.raven.z > -5) {
+        this.jumpTowardsRaven()
+      } else {
+        //stop
+        this.body.setVelocity(0)
+      }
     }
 
     // Check collision with Raven for attacking
@@ -84,8 +105,8 @@ export default class Cat extends Phaser.GameObjects.Sprite {
   visualHitEffect() {
     this.scene.tweens.add({
       targets: this,
-      scaleX: 1.3,
-      scaleY: 1.3,
+      scaleX: this.scale * 1.3,
+      scaleY: this.scale * 1.3,
       yoyo: true,
       duration: 100,
       ease: 'Power1'
