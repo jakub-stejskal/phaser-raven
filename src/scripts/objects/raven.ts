@@ -2,7 +2,7 @@ import Item from './item'
 import Nest from './nest'
 import config from '../config'
 import MainScene from '../scenes/mainScene'
-import { Recipe } from '../utils/types'
+import { Potion } from '../utils/types'
 
 interface WASD {
   W: Phaser.Input.Keyboard.Key
@@ -211,11 +211,6 @@ export default class Raven extends Phaser.GameObjects.Container {
       this.itemIndicators.push(indicator)
       this.add(indicator)
     }
-  }
-
-  applyUpgrade(upgrade: Recipe) {
-    // TODO: Implement upgrade application
-    console.log('Applying upgrade to Raven:', upgrade)
   }
 
   die() {

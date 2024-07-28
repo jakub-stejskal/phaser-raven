@@ -1,3 +1,4 @@
+import Raven from '../objects/raven'
 import { MATERIALS } from './constants'
 
 export type Material = (typeof MATERIALS)[number]
@@ -13,8 +14,15 @@ export type CitizenType = {
   sprite: string
 }
 
-export type Recipe = {
+export type Potion = {
   name: string
   essence: number
   materials: { material: Material; cost: number }[]
+  effect: PotionEffect
+}
+
+export type PotionEffect = {
+  name: string
+  duration: number
+  apply: (raven: Raven) => void
 }
