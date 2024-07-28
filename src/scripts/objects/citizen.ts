@@ -163,7 +163,8 @@ export default class Citizen extends Phaser.GameObjects.Container {
 
           if (
             this.isGuarded &&
-            Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y) < this.citizenType.attackRange
+            Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y) < this.citizenType.attackRange &&
+            raven.z > -this.citizenType.attackRange
           ) {
             console.log('Attacking Raven, removing items')
             raven.takeDamage(5) // Assume some damage value

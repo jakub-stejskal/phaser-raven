@@ -10,6 +10,9 @@ import StatusBar from '../objects/statusBar'
 import { random } from '../utils/math'
 import Cat from '../objects/cat'
 
+const CONTROLS_TIP_MAIN = 'W/A/S/D: Walk      SPACE: Fly     SHIFT: Enter the Nest'
+const CONTROLS_TIP_NEST = 'W/A/S/D: Navigate  SPACE: Select  SHIFT: Exit the Nest '
+
 export default class MainScene extends Phaser.Scene {
   statusBar: StatusBar
 
@@ -27,6 +30,7 @@ export default class MainScene extends Phaser.Scene {
 
   damageOverlay: Phaser.GameObjects.Graphics
   debugGraphics: Phaser.GameObjects.Graphics[] = []
+  controlsTip: Phaser.GameObjects.Text
 
   constructor() {
     super({ key: 'MainScene' })
@@ -62,6 +66,7 @@ export default class MainScene extends Phaser.Scene {
         this.enterLabTransition()
       }
     })
+    this.events.on('resume', this.handleResume, this)
 
     // Collision handlers
     this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem, undefined, this)
@@ -71,6 +76,8 @@ export default class MainScene extends Phaser.Scene {
     // Graphics
     this.addDamageOverlay()
     this.addGameOverText()
+    this.addControlsTip()
+    this.add
   }
 
   update() {
@@ -134,12 +141,13 @@ export default class MainScene extends Phaser.Scene {
   }
 
   enterLabTransition() {
+    this.controlsTip.text = CONTROLS_TIP_NEST
     this.scene.pause()
     this.scene.launch('LabScene', { raven: this.raven, nest: this.nest })
   }
 
-  resumeFromLab() {
-    this.scene.resume()
+  handleResume() {
+    this.controlsTip.text = CONTROLS_TIP_MAIN
   }
 
   // Collision handlers
@@ -170,6 +178,15 @@ export default class MainScene extends Phaser.Scene {
   }
 
   // Graphics
+
+  addControlsTip() {
+    this.controlsTip = this.add
+      .text(this.cameras.main.width / 2, this.cameras.main.height - 30, CONTROLS_TIP_MAIN, {
+        fontSize: '16px',
+        color: '#ffffff'
+      })
+      .setOrigin(0.5, 0.5)
+  }
 
   addDamageOverlay() {
     this.damageOverlay = this.add.graphics()

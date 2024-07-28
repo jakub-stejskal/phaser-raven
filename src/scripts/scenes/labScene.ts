@@ -13,6 +13,10 @@ const FONT_HEADING = {
   fontSize: '28px',
   color: getTextColor(true)
 }
+const FONT_ITEM = (enabled: boolean = true) => ({
+  fontSize: '24px',
+  color: getTextColor(enabled)
+})
 
 type Section = (typeof SECTIONS)[number]
 
@@ -61,23 +65,21 @@ export class LabScene extends Phaser.Scene {
 
   createMaterialList() {
     console.log('createMaterialList')
-    this.add.text(100, this.cameras.main.centerY - 140, 'Materials', {
-      fontSize: '28px',
-      color: getTextColor(true)
-    })
+    this.add.text(100, this.cameras.main.centerY - 140, 'Materials', FONT_HEADING)
 
     this.materialTexts = []
     let y = this.cameras.main.centerY - 100
     Object.keys(this.nest.materials).forEach(material => {
       const count = this.nest.materials[material as Material]
       const enabled = count >= 10
-      const text = this.add.text(100, y, `${material}: ${count}`, {
-        fontSize: '24px',
-        color: getTextColor(enabled)
-      })
+      const text = this.add.text(100, y, `${material}: ${count}`, FONT_ITEM(enabled))
       this.materialTexts.push({ text, material: material as Material })
       y += 30
     })
+
+    // Add essence counter below material items
+    y += 20 // Add some space before the essence counter
+    this.add.text(100, y, `Essence: ${this.nest.essence}`, FONT_ITEM(true))
   }
 
   createRecipeList() {
@@ -89,10 +91,7 @@ export class LabScene extends Phaser.Scene {
     const recipes = getRecipes()
     recipes.forEach(recipe => {
       const enabled = this.canAffordRecipe(recipe)
-      const text = this.add.text(this.cameras.main.width - 300, y, recipe.name, {
-        fontSize: '24px',
-        color: getTextColor(enabled)
-      })
+      const text = this.add.text(this.cameras.main.width - 300, y, recipe.name, FONT_ITEM(enabled))
       this.recipeTexts.push({ text, recipe })
       y += 30
     })
@@ -107,19 +106,13 @@ export class LabScene extends Phaser.Scene {
     this.cauldronTexts = [
       {
         text: this.add
-          .text(this.cameras.main.width / 2, this.cameras.main.centerY - 100, 'Empty', {
-            fontSize: '24px',
-            color: getTextColor(false)
-          })
+          .text(this.cameras.main.width / 2, this.cameras.main.centerY - 100, 'Empty', FONT_ITEM(false))
           .setOrigin(0.5, 0)
       },
 
       {
         text: this.add
-          .text(this.cameras.main.width / 2, this.cameras.main.centerY - 70, 'Empty', {
-            fontSize: '24px',
-            color: getTextColor(false)
-          })
+          .text(this.cameras.main.width / 2, this.cameras.main.centerY - 70, 'Empty', FONT_ITEM(false))
           .setOrigin(0.5, 0)
       }
     ]
