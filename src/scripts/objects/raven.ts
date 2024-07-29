@@ -29,6 +29,10 @@ export default class Raven extends Phaser.GameObjects.Container {
   z: number
   velocityZ: number
 
+  flyingSpeed: number
+  walkingSpeed: number
+  ascendSpeed: number
+
   debugText = this.scene.add.text(this.x, this.y, '', { fontSize: '12px', color: '#ffffff' })
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -40,6 +44,9 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.totalWeight = 0
     this.health = config.HEALTH_MAX
     this.stamina = config.STAMINA_MAX
+    this.flyingSpeed = config.SPEED_FLYING
+    this.walkingSpeed = config.SPEED_WALKING
+    this.ascendSpeed = config.SPEED_ASCEND
     this.nest = null
 
     // Add the container to the scene
@@ -92,8 +99,8 @@ export default class Raven extends Phaser.GameObjects.Container {
 
     // Calculate speed adjustment based on weight
     const weightFactor = Math.max(config.ITEM_MAX_WEIGHT_FACTOR, 1 - this.totalWeight / config.ITEM_WEIGHT_FACTOR_COEF) //
-    const walkingSpeed = this.z < 0 ? config.SPEED_FLYING * weightFactor : config.SPEED_WALKING
-    const ascendSpeed = config.SPEED_ASCEND * weightFactor
+    const walkingSpeed = this.z < 0 ? this.flyingSpeed * weightFactor : this.walkingSpeed
+    const ascendSpeed = this.ascendSpeed * weightFactor
 
     if (this.keys.A.isDown) {
       this.body.setVelocityX(-walkingSpeed)
