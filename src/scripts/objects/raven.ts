@@ -218,6 +218,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.scene.gameOver = true
     // wait for a few seconds before restarting the scene
     this.scene.time.delayedCall(3000, () => {
+      this.scene.gameOver = false
       this.scene.scene.restart()
     })
     // Handle player's death (e.g., reset position, reduce score, etc.)

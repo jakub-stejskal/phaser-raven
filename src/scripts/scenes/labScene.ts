@@ -20,7 +20,7 @@ const FONT_ITEM = (enabled: boolean = true) => ({
 
 type Section = (typeof SECTIONS)[number]
 
-export class LabScene extends Phaser.Scene {
+export default class LabScene extends Phaser.Scene {
   raven!: Raven
   nest!: Nest
   selectedMaterials: Material[] = []
@@ -338,6 +338,7 @@ export class LabScene extends Phaser.Scene {
       if (matchingRecipe && this.nest.essence >= matchingRecipe.essence) {
         this.nest.essence -= matchingRecipe.essence
 
+        // TODO: Visual effect for brewing and failure/Shadowblight spawn
         if (Math.random() < 0.1) {
           console.log('Brewing failed, adding Shadowblight')
           ;(this.scene.get('MainScene') as MainScene).addShadowblight()

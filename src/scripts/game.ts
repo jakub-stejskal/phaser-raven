@@ -1,9 +1,10 @@
 import 'phaser'
-import MainScene from './scenes/mainScene'
 import PreloadScene from './scenes/preloadScene'
+import IntroScene from './scenes/introScene'
+import MainScene from './scenes/mainScene'
+import LabScene from './scenes/labScene'
 import { Types } from 'phaser'
 import config from './config'
-import { LabScene } from './scenes/labScene'
 
 const gameConfig: Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -15,7 +16,7 @@ const gameConfig: Types.Core.GameConfig = {
     width: config.SCENE_WIDTH,
     height: config.SCENE_HEIGHT
   },
-  scene: [PreloadScene, MainScene, LabScene],
+  scene: [PreloadScene, IntroScene, MainScene, LabScene],
   physics: {
     default: 'arcade',
     arcade: {
