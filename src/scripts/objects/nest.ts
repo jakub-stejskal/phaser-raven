@@ -12,7 +12,7 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'nest')
-    this.essence = 1000
+    this.essence = 980
     this.materials = {
       'Mystic Crystals': 10,
       'Precious Metals': 25,
@@ -42,6 +42,11 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
       item.destroy()
     })
     this.updateResourceDisplay()
+
+    // win if collected 1000 essence
+    if (this.essence >= 1000) {
+      this.scene.gameWonTransition()
+    }
   }
 
   craftUpgrade(upgradeType: UpgradeType): boolean {

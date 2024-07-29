@@ -3,6 +3,7 @@ import PreloadScene from './scenes/preloadScene'
 import IntroScene from './scenes/introScene'
 import MainScene from './scenes/mainScene'
 import LabScene from './scenes/labScene'
+import EndingScene from './scenes/endingScene'
 import { Types } from 'phaser'
 import config from './config'
 
@@ -16,7 +17,7 @@ const gameConfig: Types.Core.GameConfig = {
     width: config.SCENE_WIDTH,
     height: config.SCENE_HEIGHT
   },
-  scene: [PreloadScene, IntroScene, MainScene, LabScene],
+  scene: [PreloadScene, IntroScene, MainScene, LabScene, EndingScene],
   physics: {
     default: 'arcade',
     arcade: {

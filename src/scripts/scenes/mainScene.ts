@@ -140,6 +140,10 @@ export default class MainScene extends Phaser.Scene {
     this.gameOver = true
   }
 
+  gameWonTransition() {
+    this.scene.launch('EndingScene')
+  }
+
   enterLabTransition() {
     this.controlsTip.text = CONTROLS_TIP_NEST
     this.scene.pause()
