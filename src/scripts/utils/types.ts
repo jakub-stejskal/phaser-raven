@@ -1,8 +1,9 @@
 import Raven from '../objects/raven'
-import { MATERIALS, POTION_TYPES, POTIONS } from './constants'
+import { MATERIALS, POTION_TYPES } from './constants'
 
 export type Material = (typeof MATERIALS)[number]
 export type PotionType = (typeof POTION_TYPES)[number]
+export type Ingredient = Material | PotionType
 
 export type UpgradeType = 'Speed' | 'Capacity' | 'Defense' | 'Stamina' | 'Reach'
 
@@ -16,9 +17,9 @@ export type CitizenType = {
 }
 
 export type Potion = {
-  name: string
-  essence: number
-  materials: { ingredient: Material | PotionType; cost: number }[]
+  name: PotionType
+  essenceCost: number
+  ingredientCosts: { ingredient: Ingredient; cost: number }[]
   effect: PotionEffect
 }
 

@@ -1,7 +1,16 @@
 import { CitizenType, Potion } from './types'
 import Raven from '../objects/raven'
 
-export const MATERIALS = ['Mystic Crystals', 'Precious Metals', 'Ancient Scrolls', 'Herbal Extracts']
+export const MATERIALS = ['Mystic Crystals', 'Precious Metals', 'Ancient Scrolls', 'Herbal Extracts'] as const
+
+export const POTION_TYPES = [
+  'Walking Speed Potion',
+  'Flying Speed Potion',
+  'Ascend Speed Potion',
+  'Shrink Potion',
+  'Stamina Potion',
+  'Liquid Gold'
+] as const
 
 export const childCitizen: CitizenType = {
   type: 'Child',
@@ -32,8 +41,8 @@ export const skinnyCitizen: CitizenType = {
 export const POTIONS: Potion[] = [
   {
     name: 'Walking Speed Potion',
-    essence: 10,
-    materials: [
+    essenceCost: 10,
+    ingredientCosts: [
       { ingredient: 'Mystic Crystals', cost: 1 },
       { ingredient: 'Precious Metals', cost: 1 }
     ],
@@ -47,8 +56,8 @@ export const POTIONS: Potion[] = [
   },
   {
     name: 'Flying Speed Potion',
-    essence: 10,
-    materials: [
+    essenceCost: 10,
+    ingredientCosts: [
       { ingredient: 'Mystic Crystals', cost: 1 },
       { ingredient: 'Ancient Scrolls', cost: 1 }
     ],
@@ -61,9 +70,9 @@ export const POTIONS: Potion[] = [
     }
   },
   {
-    name: 'Ascend speed potion',
-    essence: 10,
-    materials: [
+    name: 'Ascend Speed Potion',
+    essenceCost: 10,
+    ingredientCosts: [
       { ingredient: 'Mystic Crystals', cost: 1 },
       { ingredient: 'Herbal Extracts', cost: 1 }
     ],
@@ -77,8 +86,8 @@ export const POTIONS: Potion[] = [
   },
   {
     name: 'Shrink Potion',
-    essence: 10,
-    materials: [
+    essenceCost: 10,
+    ingredientCosts: [
       { ingredient: 'Precious Metals', cost: 1 },
       { ingredient: 'Ancient Scrolls', cost: 1 }
     ],
@@ -91,9 +100,9 @@ export const POTIONS: Potion[] = [
     }
   },
   {
-    name: 'Stamina potion',
-    essence: 10,
-    materials: [
+    name: 'Stamina Potion',
+    essenceCost: 10,
+    ingredientCosts: [
       { ingredient: 'Precious Metals', cost: 1 },
       { ingredient: 'Herbal Extracts', cost: 1 }
     ],
@@ -107,8 +116,8 @@ export const POTIONS: Potion[] = [
   },
   {
     name: 'Liquid Gold',
-    essence: 10,
-    materials: [
+    essenceCost: 10,
+    ingredientCosts: [
       { ingredient: 'Stamina Potion', cost: 1 },
       { ingredient: 'Walking Speed Potion', cost: 1 }
     ],
@@ -121,6 +130,3 @@ export const POTIONS: Potion[] = [
     }
   }
 ]
-
-export const POTION_TYPES: string[] = POTIONS.map(p => p.name)
-export type POTIONS = (typeof POTION_TYPES)[number]
