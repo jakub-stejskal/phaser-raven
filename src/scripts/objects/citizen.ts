@@ -13,6 +13,7 @@ export default class Citizen extends Phaser.GameObjects.Container {
   isWalking: boolean
   damage: number
 
+  guardingDelay = 1000 // 1 second delay before becoming guarded
   alertTimer: Phaser.Time.TimerEvent
   attackCooldownTimer: Phaser.Time.TimerEvent | null
 
@@ -101,12 +102,13 @@ export default class Citizen extends Phaser.GameObjects.Container {
 
   alert(raven: Raven) {
     if (!this.isGuarded && !this.alertTimer) {
+      this.animateAlert()
       // Start a delay before becoming alerted
       this.alertTimer = this.scene.time.addEvent({
-        delay: 1000, // 1 second delay
+        delay: this.guardingDelay,
         callback: () => {
           this.isGuarded = true
-          this.citizenSprite.setTint(0xff0000) // Change color to indicate alert status
+          this.citizenSprite.setTint(0xffffff) // Change color to indicate alert status
           this.stopMoving()
 
           // Revert back to normal after a certain time
@@ -120,18 +122,19 @@ export default class Citizen extends Phaser.GameObjects.Container {
         },
         callbackScope: this
       })
+      this.animateGuarding()
     }
   }
 
   calmDown() {
-    console.log('Citizen is calming down')
     this.isGuarded = false
-    this.citizenSprite.clearTint()
     this.startWalking()
     if (this.attackCooldownTimer) {
       this.attackCooldownTimer.remove() // Stop the attack loop
       this.attackCooldownTimer = null
     }
+    this.alertTimer.remove()
+    this.animateCalming()
   }
 
   stopMoving() {
@@ -148,39 +151,26 @@ export default class Citizen extends Phaser.GameObjects.Container {
   stealItem() {
     if (!this.isGuarded && this.items.length > 0) {
       const item = this.items.pop()
-      // Logic to transfer item to Raven
       return item
     }
     return null
   }
 
   attackRaven(raven: Raven) {
-    console.log('Attempting to attack Raven')
-
     if (!this.attackCooldownTimer) {
-      console.log('Setting up attack cooldown timer')
-
       this.attackCooldownTimer = this.scene.time.addEvent({
         delay: 1000, // Attack every second
         callback: () => {
-          console.log('Cooldown elapsed, checking conditions for attack')
-
           if (
             this.isGuarded &&
             Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y) < this.citizenType.attackRange &&
             raven.z > -this.citizenType.attackRange
           ) {
-            console.log('Attacking Raven, removing items')
             raven.takeDamage(this.damage)
-
             raven.items = [] // Remove all items from the Raven when attacked
+            this.animateHit()
           } else {
-            console.log(
-              'Conditions not met for attack: Guarded:',
-              this.isGuarded,
-              'Distance:',
-              Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y)
-            )
+            console.log('Conditions not met for attack')
           }
         },
         callbackScope: this,
@@ -189,5 +179,71 @@ export default class Citizen extends Phaser.GameObjects.Container {
     } else {
       console.log('Attack already in cooldown')
     }
+  }
+
+  animateAlert() {
+    this.scene.tweens.add({
+      targets: this.citizenSprite,
+      scaleX: 1.2,
+      scaleY: 1.2,
+      yoyo: true,
+      duration: 50,
+      ease: 'Power1'
+    })
+  }
+
+  animateHit() {
+    this.scene.tweens.add({
+      targets: this.citizenSprite,
+      scaleX: 1.3,
+      scaleY: 1.3,
+      yoyo: true,
+      duration: 100,
+      ease: 'Power1'
+    })
+  }
+
+  animateGuarding() {
+    this.scene.tweens.addCounter({
+      from: 0xffffff,
+      to: 0xff0000,
+      duration: 1000,
+      ease: 'Linear',
+      onUpdate: tween => {
+        const value = Math.floor(tween.getValue())
+        this.citizenSprite.setTint(value)
+      },
+      onComplete: () => {
+        this.citizenSprite.setTint(0xff0000) // Ensure it's fully red
+
+        // Add shake effect after setting the final tint
+        this.scene.tweens.add({
+          targets: this.citizenSprite,
+          x: 5, // Slightly move to the right
+          yoyo: true,
+          duration: 50,
+          repeat: 2, // Shake back and forth a couple of times
+          onComplete: () => {
+            this.citizenSprite.setX(0) // Reset position after shaking
+          }
+        })
+      }
+    })
+  }
+
+  animateCalming() {
+    this.scene.tweens.addCounter({
+      from: 0xff0000,
+      to: 0xffffff,
+      duration: 1000,
+      ease: 'Linear',
+      onUpdate: tween => {
+        const value = Math.floor(tween.getValue())
+        this.citizenSprite.setTint(value)
+      },
+      onComplete: () => {
+        this.citizenSprite.clearTint() // Ensure it's back to the original state
+      }
+    })
   }
 }
