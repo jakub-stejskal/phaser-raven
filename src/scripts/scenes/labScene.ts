@@ -71,7 +71,7 @@ export default class LabScene extends Phaser.Scene {
     let y = this.cameras.main.centerY - 100
     Object.keys(this.nest.materials).forEach(material => {
       const count = this.nest.materials[material as Material]
-      const enabled = count >= 10
+      const enabled = count >= 0
       const text = this.add.text(100, y, `${material}: ${count}`, FONT_ITEM(enabled))
       this.materialTexts.push({ text, material: material as Material })
       y += 30
@@ -90,7 +90,9 @@ export default class LabScene extends Phaser.Scene {
     let y = this.cameras.main.centerY - 100
     const recipes = getRecipes()
     recipes.forEach(recipe => {
+      console.log('Current recipe looks like: ' + JSON.stringify(recipe))
       const enabled = this.canAffordRecipe(recipe)
+      console.log('The recipe is... ' + recipe + 'and it is...' + enabled)
       const text = this.add.text(this.cameras.main.width - 300, y, recipe.name, FONT_ITEM(enabled))
       this.recipeTexts.push({ text, recipe })
       y += 30
@@ -275,7 +277,7 @@ export default class LabScene extends Phaser.Scene {
   addMaterialToCauldron() {
     console.log('addMaterialToCauldron')
     const material = this.materialTexts[this.currentSelectionIndex].material
-    if (this.selectedMaterials.length < 2 && this.nest.materials[material] >= 10) {
+    if (this.selectedMaterials.length < 2 && this.nest.materials[material] >= 1) {
       this.selectedMaterials.push(material)
       this.updateCauldronText()
       this.updateSelectionFrame()
@@ -311,7 +313,7 @@ export default class LabScene extends Phaser.Scene {
     console.log('selectRecipeMaterials')
     const recipe = this.recipeTexts[this.currentSelectionIndex].recipe
     if (this.canAffordRecipe(recipe)) {
-      this.selectedMaterials = recipe.materials.map(m => m.material)
+      this.selectedMaterials = recipe.materials.map(m => m.ingredient)
       this.updateCauldronText()
       this.updateSelectionFrame()
     }
@@ -320,7 +322,12 @@ export default class LabScene extends Phaser.Scene {
   canAffordRecipe(recipe: Potion): boolean {
     return (
       this.nest.essence >= recipe.essence &&
-      recipe.materials.every(material => this.nest.materials[material.material] >= material.cost)
+      recipe.materials.every(material => {
+        console.log(`Current material: ${JSON.stringify(material)}`)
+        console.log(`All materials in nest: ${JSON.stringify(this.nest.materials)}`)
+        console.log(`Current material qtty in nest: ${this.nest.materials[material.ingredient]}`)
+        this.nest.materials[material.ingredient] >= material.cost
+      })
     )
   }
 
@@ -330,8 +337,8 @@ export default class LabScene extends Phaser.Scene {
       const matchingRecipe = getRecipes().find(recipe =>
         recipe.materials.every(
           material =>
-            this.selectedMaterials.includes(material.material) &&
-            this.nest.materials[material.material] >= material.cost
+            this.selectedMaterials.includes(material.ingredient) &&
+            this.nest.materials[material.ingredient] >= material.cost
         )
       )
 
@@ -344,11 +351,13 @@ export default class LabScene extends Phaser.Scene {
           ;(this.scene.get('MainScene') as MainScene).addShadowblight()
         } else {
           console.log('Brewing succeeded, applying upgrade')
-          matchingRecipe.effect.apply(this.raven)
+          this.nest.materials[matchingRecipe.name] = (this.nest.materials[matchingRecipe.name] ?? 0) + 1
+          console.log(JSON.stringify(this.nest.materials))
+          // matchingRecipe.effect.apply(this.raven)
         }
 
         matchingRecipe.materials.forEach(material => {
-          this.nest.materials[material.material] -= material.cost
+          this.nest.materials[material.ingredient] -= material.cost
         })
 
         this.selectedMaterials = []

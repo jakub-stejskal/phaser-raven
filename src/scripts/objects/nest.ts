@@ -16,8 +16,8 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
     this.materials = {
       'Mystic Crystals': 10,
       'Precious Metals': 25,
-      'Ancient Scrolls': 5,
-      'Herbal Extracts': 2
+      'Ancient Scrolls': 10,
+      'Herbal Extracts': 10
     }
 
     this.scene.add.existing(this)
