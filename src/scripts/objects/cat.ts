@@ -18,7 +18,7 @@ export default class Cat extends Phaser.GameObjects.Container {
   constructor(scene: MainScene, x: number, y: number) {
     super(scene, x, y)
     this.scene = scene
-    this.damage = 30
+    this.damage = config.CAT_DAMAGE
     this.moveSpeed = 50
     this.lastHitTime = 0
     this.hitCooldown = 1000 // 1 second cooldown

@@ -11,7 +11,7 @@ export default class Shadowblight extends Phaser.GameObjects.Ellipse {
   constructor(scene: MainScene, x: number, y: number) {
     super(scene, x, y, 120, 60, 0x000000)
     this.scene = scene
-    this.damage = 10
+    this.damage = config.SHADOWBLIGHT_DAMAGE
     this.moveSpeed = 50
     this.lastHitTime = 0
     this.hitCooldown = 1000 // 1 second cooldown

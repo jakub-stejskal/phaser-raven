@@ -11,6 +11,8 @@ export default class Citizen extends Phaser.GameObjects.Container {
   items: Item[]
   isGuarded: boolean
   isWalking: boolean
+  damage: number
+
   alertTimer: Phaser.Time.TimerEvent
   attackCooldownTimer: Phaser.Time.TimerEvent | null
 
@@ -28,6 +30,7 @@ export default class Citizen extends Phaser.GameObjects.Container {
     this.citizenType = citizenType
     this.isGuarded = false
     this.isWalking = false
+    this.damage = config.CITIZEN_DAMAGE
 
     // Add the container to the scene
     this.scene.add.existing(this)
@@ -168,10 +171,9 @@ export default class Citizen extends Phaser.GameObjects.Container {
             raven.z > -this.citizenType.attackRange
           ) {
             console.log('Attacking Raven, removing items')
-            raven.takeDamage(5) // Assume some damage value
+            raven.takeDamage(this.damage)
 
-            // Remove all items from the Raven when attacked
-            raven.items = [] // Assuming Raven has an items array
+            raven.items = [] // Remove all items from the Raven when attacked
           } else {
             console.log(
               'Conditions not met for attack: Guarded:',
