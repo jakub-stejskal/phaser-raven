@@ -33,6 +33,9 @@ export default class Raven extends Phaser.GameObjects.Container {
   walkingSpeed: number
   ascendSpeed: number
 
+  isFlying: boolean = false
+  flyTimer: Phaser.Time.TimerEvent | null = null
+
   debugText = this.scene.add.text(this.x, this.y, '', { fontSize: '12px', color: '#ffffff' })
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -67,6 +70,8 @@ export default class Raven extends Phaser.GameObjects.Container {
     // Setup controls
     this.cursors = this.scene.input.keyboard.createCursorKeys()
     this.keys = this.scene.input.keyboard.addKeys('W,A,S,D') as WASD
+    this.scene.input.keyboard.on('keydown-SPACE', this.startFlying, this)
+    this.scene.input.keyboard.on('keyup-SPACE', this.stopFlying, this)
 
     this.debugText.setDepth(Number.MAX_SAFE_INTEGER)
 
@@ -114,10 +119,9 @@ export default class Raven extends Phaser.GameObjects.Container {
     }
 
     // Flying logic (adjusts z for height)
-    if (this.cursors.space.isDown && this.stamina > 0) {
-      this.velocityZ = -ascendSpeed // Ascend
+    if (this.isFlying) {
+      this.velocityZ = -ascendSpeed // Continue ascending while flying
       this.useStamina(config.STAMINA_USE_FLYING)
-      this.ravenSprite.anims.play('fly', true)
     } else {
       this.velocityZ += config.SPEED_GRAVITY // Gravity effect
     }
@@ -157,7 +161,25 @@ export default class Raven extends Phaser.GameObjects.Container {
     }
   }
 
-  //
+  startFlying() {
+    // Require at least 10% stamina to fly
+    if (this.stamina > config.STAMINA_MAX / 10) {
+      this.isFlying = true
+      this.velocityZ = -this.ascendSpeed // Ascend
+      this.useStamina(config.STAMINA_USE_FLYING)
+      this.ravenSprite.anims.play('fly', true)
+    }
+    this.flyTimer = this.scene.time.delayedCall(100, this.stopFlying, [], this)
+  }
+
+  stopFlying() {
+    if (this.flyTimer) {
+      this.flyTimer.remove(false) // Remove the timer without calling the callback
+      this.flyTimer = null
+    }
+    this.isFlying = false
+  }
+
   isInNest(): boolean {
     // check if nest and raven collide
     return (this.nest && this.scene.physics.overlap(this, this.nest)) ?? false
