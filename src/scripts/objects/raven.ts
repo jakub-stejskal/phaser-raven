@@ -36,6 +36,8 @@ export default class Raven extends Phaser.GameObjects.Container {
   isFlying: boolean = false
   flyTimer: Phaser.Time.TimerEvent | null = null
 
+  transformed: boolean = false
+
   debugText = this.scene.add.text(this.x, this.y, '', { fontSize: '12px', color: '#ffffff' })
 
   constructor(scene: Phaser.Scene, x: number, y: number) {

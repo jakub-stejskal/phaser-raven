@@ -11,7 +11,7 @@ import { random } from '../utils/math'
 import Cat from '../objects/cat'
 
 const CONTROLS_TIP_MAIN = 'W/A/S/D: Walk      SPACE: Fly     SHIFT: Enter the Nest'
-const CONTROLS_TIP_NEST = 'W/A/S/D: Navigate  SPACE: Select  SHIFT: Exit the Nest '
+const CONTROLS_TIP_NEST = 'W/A/S/D: Navigate  SPACE: Select  ENTER: Drink a Potion SHIFT: Exit the Nest '
 
 export default class MainScene extends Phaser.Scene {
   statusBar: StatusBar
@@ -45,7 +45,8 @@ export default class MainScene extends Phaser.Scene {
     this.itemFactory = new ItemFactory(this)
 
     this.nest = new Nest(this, this.cameras.main.width - config.NEST_WIDTH, config.NEST_HEIGHT)
-    this.raven = new Raven(this, this.cameras.main.centerX, this.cameras.main.centerY)
+    // this.raven = new Raven(this, this.cameras.main.centerX, this.cameras.main.centerY)
+    this.raven = new Raven(this, this.cameras.main.width - config.NEST_WIDTH - 100, config.NEST_HEIGHT)
     this.itemsGroup = this.physics.add.group({ classType: Item, runChildUpdate: true })
     this.citizenGroup = this.physics.add.group({ classType: Citizen, runChildUpdate: true })
     this.shadowBlightGroup = this.physics.add.group({ classType: Shadowblight, runChildUpdate: true })
@@ -77,7 +78,7 @@ export default class MainScene extends Phaser.Scene {
     this.addDamageOverlay()
     this.addGameOverText()
     this.addControlsTip()
-    this.add
+    // this.add
   }
 
   update() {
@@ -118,8 +119,10 @@ export default class MainScene extends Phaser.Scene {
     const PADDING = 100
     const shadowBlight = new Shadowblight(
       this,
-      random(PADDING, config.SCENE_WIDTH - PADDING),
-      random(PADDING, config.SCENE_HEIGHT - PADDING)
+      config.SCENE_WIDTH / 2,
+      config.SCENE_HEIGHT / 2
+      // random(PADDING, config.SCENE_WIDTH - PADDING),
+      // random(PADDING, config.SCENE_HEIGHT - PADDING)
     )
     this.shadowBlightGroup.add(shadowBlight)
   }
@@ -128,8 +131,10 @@ export default class MainScene extends Phaser.Scene {
     const PADDING = 100
     const cat = new Cat(
       this,
-      random(PADDING, config.SCENE_WIDTH - PADDING),
-      random(PADDING, config.SCENE_HEIGHT - PADDING)
+      PADDING,
+      config.SCENE_HEIGHT - PADDING
+      // random(PADDING, config.SCENE_WIDTH - PADDING),
+      // random(PADDING, config.SCENE_HEIGHT - PADDING)
     )
     this.catGroup.add(cat)
   }

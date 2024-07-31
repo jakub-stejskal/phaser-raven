@@ -1,8 +1,9 @@
-import { Ingredient, Material, Potion } from '../utils/types'
+import { Ingredient, Material, Potion, PotionType } from '../utils/types'
 import Nest from '../objects/nest'
 import Raven from '../objects/raven'
 import MainScene from './mainScene'
 import getRecipes from '../utils/potion-factory'
+import { POTION_TYPES } from '../utils/constants'
 
 const getTextColor = (enabled: boolean = true): string => {
   return enabled ? '#fff' : '#aaa'
@@ -58,6 +59,7 @@ export default class LabScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-W', this.previousItem, this)
     this.input.keyboard.on('keydown-SHIFT', this.returnToMainScene, this)
     this.input.keyboard.on('keydown-SPACE', this.selectItem, this)
+    this.input.keyboard.on('keydown-ENTER', this.drinkPotion, this)
 
     this.selectionFrame = this.add.rectangle(0, 0, 0, 0, 0xffffff, 0.5).setVisible(false)
     this.updateSelectionFrame()
@@ -349,7 +351,7 @@ export default class LabScene extends Phaser.Scene {
           console.log('Brewing succeeded, applying upgrade')
           this.nest.ingredients[matchingRecipe.name] = (this.nest.ingredients[matchingRecipe.name] ?? 0) + 1
           console.log(JSON.stringify(this.nest.ingredients))
-          // matchingRecipe.effect.apply(this.raven)
+          matchingRecipe.effect.apply(this.raven)
         }
 
         matchingRecipe.ingredientCosts.forEach(material => {
@@ -364,6 +366,19 @@ export default class LabScene extends Phaser.Scene {
       }
     } else {
       console.log('Not enough materials selected.')
+    }
+  }
+
+  drinkPotion() {
+    const ingredient = this.ingredientTexts[this.currentSelectionIndex].ingredient
+    if (this.nest.ingredients?.[ingredient] ?? 0 >= 1) {
+      if ((POTION_TYPES as readonly string[]).includes(ingredient)) {
+        this.nest.ingredients[ingredient] = (this.nest.ingredients[ingredient] ?? 0) - 1
+        const potion = getRecipes().find(p => p.name === ingredient)
+        potion?.effect.apply(this.raven)
+        console.log(`Just drunk a ${JSON.stringify(potion)} potion!`)
+        this.updateSelectionFrame()
+      }
     }
   }
 

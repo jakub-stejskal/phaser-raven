@@ -9,7 +9,9 @@ export const POTION_TYPES = [
   'Ascend Speed Potion',
   'Shrink Potion',
   'Stamina Potion',
-  'Liquid Gold'
+  'Liquid Gold',
+  'Liquid Silver',
+  'Transmutation'
 ] as const
 
 export const childCitizen: CitizenType = {
@@ -126,6 +128,38 @@ export const POTIONS: Potion[] = [
       duration: 10,
       apply: (raven: Raven) => {
         console.log('MADE A LIQUID GOLD POT!')
+      }
+    }
+  },
+  {
+    name: 'Liquid Silver',
+    essenceCost: 10,
+    ingredientCosts: [
+      { ingredient: 'Flying Speed Potion', cost: 1 },
+      { ingredient: 'Shrink Potion', cost: 1 }
+    ],
+    effect: {
+      name: 'Ingredient for better stuff',
+      duration: 10,
+      apply: (raven: Raven) => {
+        console.log('MADE A LIQUID SILV POT!')
+      }
+    }
+  },
+  {
+    name: 'Transmutation',
+    essenceCost: 10,
+    ingredientCosts: [
+      { ingredient: 'Liquid Gold', cost: 1 },
+      { ingredient: 'Liquid Silver', cost: 1 }
+    ],
+    effect: {
+      name: 'Ingredient for better stuff',
+      duration: 10,
+      apply: (raven: Raven) => {
+        console.log('WE HAVE TURNED BACK INTO HUMAN!')
+        raven.transformed = true
+        raven.scene.gameWonTransition()
       }
     }
   }

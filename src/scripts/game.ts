@@ -4,6 +4,7 @@ import IntroScene from './scenes/introScene'
 import MainScene from './scenes/mainScene'
 import LabScene from './scenes/labScene'
 import EndingScene from './scenes/endingScene'
+import UpgradeScene from './scenes/upgradeScene'
 import { Types } from 'phaser'
 import config from './config'
 
@@ -17,11 +18,15 @@ const gameConfig: Types.Core.GameConfig = {
     width: config.SCENE_WIDTH,
     height: config.SCENE_HEIGHT
   },
-  scene: [PreloadScene, IntroScene, MainScene, LabScene, EndingScene],
+  scene: [PreloadScene, IntroScene, MainScene, LabScene, UpgradeScene, EndingScene],
   physics: {
     default: 'arcade',
     arcade: {
-      debug: config.DEBUG
+      debug: config.DEBUG,
+      debugShowBody: config.DEBUG,
+      debugShowStaticBody: config.DEBUG,
+      debugBodyColor: 0xff00ff, // Color for dynamic bodies (pink)
+      debugStaticBodyColor: 0x0000ff // Color for static bodies (blue)
     }
   },
   render: {
