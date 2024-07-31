@@ -28,7 +28,7 @@ module.exports = {
     }
   },
   plugins: [
-    new HtmlWebpackPlugin({ gameName: 'Ravenmist', template: 'src/index.html' }),
+    new HtmlWebpackPlugin({ gameName: 'Raven Shadowcast', template: 'src/index.html' }),
     new CopyWebpackPlugin({
       patterns: [
         { from: 'src/assets', to: 'assets' },
