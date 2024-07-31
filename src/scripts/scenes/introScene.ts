@@ -21,8 +21,8 @@ export default class IntroScene extends Phaser.Scene {
       .text(
         this.cameras.main.width * 0.25,
         200,
-        'The young alchemy apprentice Raven Shadowcast made a terrible mistake during one of his experiments, and he had to pay a terrible price: he became a raven, a little bird with feathers dark as night. Since then he is trying to turn back to his human form. To do so, he needs to brew a Transmutation potion. But in his raven form, he has no other choice than to steal shiny items from his fellow citizens on the townsquare and use them to brew potions.\n' +
-          "Unfortunately, he's not sure what he needs for the Transmutation potion, but he remembers that it's made by mixing other potions.",
+        'The young alchemy apprentice Raven Shadowcast made a terrible mistake during one of his experiments, and he had to pay a terrible price: he became a raven, a little bird with feathers dark as night. Since then he is trying to turn back to his human form. To do so, he needs to brew a Transmutation potion. But in his raven form, he has no other choice than to steal shiny items from his fellow citizens on the town square and use them to brew potions.\n' +
+          "Unfortunately, every time he makes a potion, there's a 10% chance it will fail and spawn an evil shadow that will try to catch him!",
         {
           fontSize: '12px',
           color: '#ffffff',
@@ -101,12 +101,25 @@ export default class IntroScene extends Phaser.Scene {
 
     // Display continue message on the left side
     this.add
-      .text(this.cameras.main.width * 0.5, this.cameras.main.height - 50, 'Press SPACE to continue', {
+      .text(this.cameras.main.width * 0.25, this.cameras.main.height - 50, 'Press SPACE to continue', {
         fontSize: '24px',
         color: '#ffffff',
-        fontStyle: 'italic'
+        fontStyle: 'italic',
+        backgroundColor: '#00000'
       })
       .setOrigin(0.5)
+
+    this.add
+      .text(
+        this.cameras.main.width * 0.8,
+        this.cameras.main.height - 50,
+        'Credits:\n' +
+          'Game design & art: Jindrich Pavlasek\n' +
+          'Programming: Jakub Stejskal and Miroslav Mihov\n' +
+          'Item sprites: PaperHatLizard/Cryo (https://paperhatlizard.itch.io/cryos-mini-items)',
+        { fontSize: '12px', color: '#ffffff', fontStyle: 'italic' }
+      )
+      .setOrigin(0.8)
 
     // Listen for SPACE key press to start the game
     this.input.keyboard.on('keydown-SPACE', () => {
