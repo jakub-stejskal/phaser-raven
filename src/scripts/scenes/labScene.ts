@@ -351,7 +351,7 @@ export default class LabScene extends Phaser.Scene {
           console.log('Brewing succeeded, applying upgrade')
           this.nest.ingredients[matchingRecipe.name] = (this.nest.ingredients[matchingRecipe.name] ?? 0) + 1
           console.log(JSON.stringify(this.nest.ingredients))
-          matchingRecipe.effect.apply(this.raven)
+          // matchingRecipe.effect.apply(this.raven)
         }
 
         matchingRecipe.ingredientCosts.forEach(material => {
