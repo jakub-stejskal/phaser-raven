@@ -28,8 +28,8 @@ export default {
 
   CAT_DAMAGE: 30,
 
-  NEST_WIDTH: 64,
-  NEST_HEIGHT: 64,
+  NEST_WIDTH: 128,
+  NEST_HEIGHT: 128,
 
   OBJECTS_SHADOW_ALPHA: 0.2
 }

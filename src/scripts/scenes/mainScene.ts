@@ -44,9 +44,8 @@ export default class MainScene extends Phaser.Scene {
     this.citizenFactory = new CitizenFactory(this)
     this.itemFactory = new ItemFactory(this)
 
-    this.nest = new Nest(this, this.cameras.main.width - config.NEST_WIDTH, config.NEST_HEIGHT)
-    // this.raven = new Raven(this, this.cameras.main.centerX, this.cameras.main.centerY)
-    this.raven = new Raven(this, this.cameras.main.width - config.NEST_WIDTH - 100, config.NEST_HEIGHT)
+    this.nest = new Nest(this, this.cameras.main.width - config.NEST_WIDTH / 2, config.NEST_HEIGHT / 2)
+    this.raven = new Raven(this, this.cameras.main.width - config.NEST_WIDTH / 2 - 100, config.NEST_HEIGHT / 2)
     this.itemsGroup = this.physics.add.group({ classType: Item, runChildUpdate: true })
     this.citizenGroup = this.physics.add.group({ classType: Citizen, runChildUpdate: true })
     this.shadowBlightGroup = this.physics.add.group({ classType: Shadowblight, runChildUpdate: true })
@@ -78,7 +77,8 @@ export default class MainScene extends Phaser.Scene {
     this.addDamageOverlay()
     this.addGameOverText()
     this.addControlsTip()
-    // this.add
+
+    if (config.DEBUG) this.addDebugGraphics()
   }
 
   update() {
@@ -212,6 +212,21 @@ export default class MainScene extends Phaser.Scene {
     })
     this.gameOverText.setOrigin(0.5)
     this.gameOverText.setVisible(false)
+  }
+
+  addDebugGraphics() {
+    // Create a graphics object for drawing
+    const graphics = this.add.graphics()
+    // Draw vertical line at x = sceneWidth - config.NEST_WIDTH
+    graphics.lineStyle(2, 0x0000ff).beginPath()
+    graphics.moveTo(config.SCENE_WIDTH - config.NEST_WIDTH, 0)
+    graphics.lineTo(config.SCENE_WIDTH - config.NEST_WIDTH, config.SCENE_HEIGHT)
+    graphics.strokePath() // Apply the line style and draw the line
+    // Draw horizontal line at y = config.NEST_HEIGHT
+    graphics.lineStyle(2, 0x0000ff).beginPath()
+    graphics.moveTo(0, config.NEST_HEIGHT)
+    graphics.lineTo(config.SCENE_WIDTH, config.NEST_HEIGHT) // Fix this to use scene width, not height
+    graphics.strokePath() // Apply the line style and draw the line
   }
 
   flashDamage() {

@@ -14,7 +14,7 @@ export default class Citizen extends Phaser.GameObjects.Container {
   damage: number
 
   guardingDelay = 1000 // 1 second delay before becoming guarded
-  alertTimer: Phaser.Time.TimerEvent
+  alertTimer: Phaser.Time.TimerEvent | null
   attackCooldownTimer: Phaser.Time.TimerEvent | null
 
   debugText: Phaser.GameObjects.Text
@@ -108,13 +108,13 @@ export default class Citizen extends Phaser.GameObjects.Container {
         delay: this.guardingDelay,
         callback: () => {
           this.isGuarded = true
-          this.citizenSprite.setTint(0xffffff) // Change color to indicate alert status
+          this.citizenSprite.setTint(0xff0000) // Set the final alert tint
           this.stopMoving()
 
           // Revert back to normal after a certain time
-          this.alertTimer = this.scene.time.addEvent({
+          this.scene.time.addEvent({
             delay: 5000,
-            callback: () => this.calmDown(),
+            callback: this.calmDown,
             callbackScope: this
           })
 
@@ -129,12 +129,19 @@ export default class Citizen extends Phaser.GameObjects.Container {
   calmDown() {
     this.isGuarded = false
     this.startWalking()
+    this.animateCalming()
+
+    // Clear any existing attack cooldown timer
     if (this.attackCooldownTimer) {
-      this.attackCooldownTimer.remove() // Stop the attack loop
+      this.attackCooldownTimer.remove()
       this.attackCooldownTimer = null
     }
-    this.alertTimer.remove()
-    this.animateCalming()
+
+    // Clear the alert timer to allow future alerts
+    if (this.alertTimer) {
+      this.alertTimer.remove()
+      this.alertTimer = null
+    }
   }
 
   stopMoving() {

@@ -14,6 +14,7 @@ export default class Cat extends Phaser.GameObjects.Container {
   lastHitTime: number
   hitCooldown: number
   jumpRange: number
+  nestAvoidRadius: number
 
   constructor(scene: MainScene, x: number, y: number) {
     super(scene, x, y)
@@ -23,6 +24,7 @@ export default class Cat extends Phaser.GameObjects.Container {
     this.lastHitTime = 0
     this.hitCooldown = 1000 // 1 second cooldown
     this.jumpRange = 300 // Range within which the cat will jump towards the Raven
+    this.nestAvoidRadius = 200 // Distance to avoid the nest
 
     // Add the sprite to the scene and enable physics
     this.scene.add.existing(this)
@@ -40,19 +42,15 @@ export default class Cat extends Phaser.GameObjects.Container {
     this.add(this.shadow)
     this.add(this.catSprite)
 
-    // this.setSize(16, 16) // 16x16 collision box
     this.body.setSize(16, 16) // Set the collision box size
-
     this.setScale(4) // This makes it 64x64
-
-    // this.body.setOffset(8, this.height / 2)
 
     this.startRoaming()
   }
 
   startRoaming() {
     this.scene.time.addEvent({
-      delay: 5000, // Roam every second
+      delay: 5000, // Roam every 5 seconds
       callback: () => {
         this.randomMove()
       },
@@ -62,8 +60,16 @@ export default class Cat extends Phaser.GameObjects.Container {
 
   randomMove() {
     const bounds = this.scene.physics.world.bounds
-    const targetX = Phaser.Math.Between(bounds.left, bounds.right)
-    const targetY = Phaser.Math.Between(bounds.top, bounds.bottom)
+    let targetX: number
+    let targetY: number
+
+    // Find a random position that is not near the nest
+    do {
+      targetX = Phaser.Math.Between(bounds.left, bounds.right)
+      targetY = Phaser.Math.Between(bounds.top, bounds.bottom)
+    } while (
+      Phaser.Math.Distance.Between(targetX, targetY, this.scene.nest.x, this.scene.nest.y) < this.nestAvoidRadius
+    )
 
     this.scene.physics.moveTo(this, targetX, targetY, this.moveSpeed)
   }
@@ -77,7 +83,7 @@ export default class Cat extends Phaser.GameObjects.Container {
       if (this.scene.raven.z > -5) {
         this.jumpTowardsRaven()
       } else {
-        //stop
+        // Stop
         this.body.setVelocity(0)
       }
     }
@@ -90,7 +96,9 @@ export default class Cat extends Phaser.GameObjects.Container {
 
   jumpTowardsRaven() {
     const raven = this.scene.raven
-    this.scene.physics.moveTo(this, raven.x, raven.y, this.moveSpeed * 4) // Faster move speed for jump
+    if (Phaser.Math.Distance.Between(raven.x, raven.y, this.scene.nest.x, this.scene.nest.y) >= this.nestAvoidRadius) {
+      this.scene.physics.moveTo(this, raven.x, raven.y, this.moveSpeed * 4) // Faster move speed for jump
+    }
   }
 
   onHitRaven() {
