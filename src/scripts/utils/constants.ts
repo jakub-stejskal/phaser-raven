@@ -49,7 +49,7 @@ export const POTIONS: Potion[] = [
       { ingredient: 'Precious Metals', cost: 1 }
     ],
     effect: {
-      name: 'Walking Speed',
+      name: "The Raven's Walking Speed just increased by 50%!",
       duration: 10,
       apply: (raven: Raven) => {
         raven.walkingSpeed = raven.walkingSpeed * 1.5
@@ -64,7 +64,7 @@ export const POTIONS: Potion[] = [
       { ingredient: 'Ancient Scrolls', cost: 1 }
     ],
     effect: {
-      name: 'Flying Speed',
+      name: 'Your speed while flying just increased by 50%!',
       duration: 10,
       apply: (raven: Raven) => {
         raven.flyingSpeed = raven.flyingSpeed * 1.5
@@ -79,7 +79,7 @@ export const POTIONS: Potion[] = [
       { ingredient: 'Herbal Extracts', cost: 1 }
     ],
     effect: {
-      name: 'Ascend Speed',
+      name: 'Your speed while taking off just increased by 50%!',
       duration: 10,
       apply: (raven: Raven) => {
         raven.ascendSpeed = raven.ascendSpeed * 1.5
@@ -94,10 +94,10 @@ export const POTIONS: Potion[] = [
       { ingredient: 'Ancient Scrolls', cost: 1 }
     ],
     effect: {
-      name: 'Shrink',
+      name: "You're now 20% smaller! Enemies will have a harder time catching you!",
       duration: 10,
       apply: (raven: Raven) => {
-        raven.body.setSize(raven.body.width * 0.5, raven.body.height * 0.5)
+        raven.body.setSize(raven.body.width * 0.9, raven.body.height * 0.9)
       }
     }
   },
@@ -109,7 +109,7 @@ export const POTIONS: Potion[] = [
       { ingredient: 'Herbal Extracts', cost: 1 }
     ],
     effect: {
-      name: 'Stamina increase',
+      name: "You increased your stamina by 50%! Now you'll be able to fly longer!",
       duration: 10,
       apply: (raven: Raven) => {
         raven.stamina = raven.stamina * 1.5
@@ -124,7 +124,7 @@ export const POTIONS: Potion[] = [
       { ingredient: 'Walking Speed Potion', cost: 1 }
     ],
     effect: {
-      name: 'Ingredient for better stuff',
+      name: "You shouldn't have drunk this, you need to to make a Transmutation potion!",
       duration: 10,
       apply: (raven: Raven) => {
         console.log('MADE A LIQUID GOLD POT!')
@@ -139,7 +139,7 @@ export const POTIONS: Potion[] = [
       { ingredient: 'Shrink Potion', cost: 1 }
     ],
     effect: {
-      name: 'Ingredient for better stuff',
+      name: "You shouldn't have drunk this, you need to to make a Transmutation potion!",
       duration: 10,
       apply: (raven: Raven) => {
         console.log('MADE A LIQUID SILV POT!')
@@ -154,7 +154,7 @@ export const POTIONS: Potion[] = [
       { ingredient: 'Liquid Silver', cost: 1 }
     ],
     effect: {
-      name: 'Ingredient for better stuff',
+      name: 'You turned back into a human!',
       duration: 10,
       apply: (raven: Raven) => {
         console.log('WE HAVE TURNED BACK INTO HUMAN!')

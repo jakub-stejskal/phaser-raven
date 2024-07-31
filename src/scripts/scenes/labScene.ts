@@ -378,6 +378,37 @@ export default class LabScene extends Phaser.Scene {
         potion?.effect.apply(this.raven)
         console.log(`Just drunk a ${JSON.stringify(potion)} potion!`)
         this.updateSelectionFrame()
+
+        const potionEffectText: Phaser.GameObjects.Text = new Phaser.GameObjects.Text(
+          this,
+          this.cameras.main.centerX - 400,
+          this.cameras.main.centerY - 250,
+          potion?.effect.name ?? '',
+          {
+            fontSize: '16px',
+            color: '#ABCDEF',
+            fontStyle: 'bold',
+            backgroundColor: '00000'
+          }
+        )
+        this.add.existing(potionEffectText)
+
+        // Fade out the text after 3 seconds
+        this.time.delayedCall(2000, () => {
+          this.tweens.add({
+            targets: potionEffectText,
+            alpha: { from: 1, to: 0 },
+            duration: 1000,
+            ease: 'Linear',
+            onComplete: () => {
+              // Optional: Destroy the text after fading out
+              this.scene.restart({ raven: this.raven, nest: this.nest })
+              potionEffectText.destroy()
+            }
+          })
+        })
+
+        // this.scene.restart({ raven: this.raven, nest: this.nest })
       }
     }
   }
