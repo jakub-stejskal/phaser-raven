@@ -149,6 +149,7 @@ export default class LabScene extends Phaser.Scene {
       case 'recipes':
         if (this.recipeTexts[this.currentSelectionIndex]) {
           text = this.recipeTexts[this.currentSelectionIndex].text
+          this.updateCauldronText() // Update the cauldron with recipe preview
         }
         break
     }
@@ -168,6 +169,7 @@ export default class LabScene extends Phaser.Scene {
       if (this.hasEnabledItemsInCurrentSection()) {
         this.currentSelectionIndex = 0
         this.updateSelectionFrame()
+        this.updateCauldronText() // Clear preview or update based on new section
         return
       }
     }
@@ -182,6 +184,7 @@ export default class LabScene extends Phaser.Scene {
       if (this.hasEnabledItemsInCurrentSection()) {
         this.currentSelectionIndex = 0
         this.updateSelectionFrame()
+        this.updateCauldronText() // Clear preview or update based on new section
         return
       }
     }
@@ -208,20 +211,13 @@ export default class LabScene extends Phaser.Scene {
     console.log('nextItem')
     switch (this.currentSection) {
       case 'materials':
-        do {
-          this.currentSelectionIndex = (this.currentSelectionIndex + 1) % this.ingredientTexts.length
-        } while (this.isItemDisabled(this.ingredientTexts[this.currentSelectionIndex]))
+        this.currentSelectionIndex = (this.currentSelectionIndex + 1) % this.ingredientTexts.length
         break
       case 'cauldron':
         this.currentSelectionIndex = (this.currentSelectionIndex + 1) % 3
-        if (this.currentSelectionIndex < 2 && this.isItemDisabled(this.cauldronTexts[this.currentSelectionIndex])) {
-          this.currentSelectionIndex = 2 // Skip to brew button if selected item is empty
-        }
         break
       case 'recipes':
-        do {
-          this.currentSelectionIndex = (this.currentSelectionIndex + 1) % this.recipeTexts.length
-        } while (this.isItemDisabled(this.recipeTexts[this.currentSelectionIndex]))
+        this.currentSelectionIndex = (this.currentSelectionIndex + 1) % this.recipeTexts.length
         break
     }
     this.updateSelectionFrame()
@@ -231,22 +227,15 @@ export default class LabScene extends Phaser.Scene {
     console.log('previousItem')
     switch (this.currentSection) {
       case 'materials':
-        do {
-          this.currentSelectionIndex =
-            (this.currentSelectionIndex - 1 + this.ingredientTexts.length) % this.ingredientTexts.length
-        } while (this.isItemDisabled(this.ingredientTexts[this.currentSelectionIndex]))
+        this.currentSelectionIndex =
+          (this.currentSelectionIndex - 1 + this.ingredientTexts.length) % this.ingredientTexts.length
         break
       case 'cauldron':
         this.currentSelectionIndex = (this.currentSelectionIndex - 1 + 3) % 3
-        if (this.currentSelectionIndex < 2 && this.isItemDisabled(this.cauldronTexts[this.currentSelectionIndex])) {
-          this.currentSelectionIndex = 1 // Skip to first filled item or brew button
-        }
         break
       case 'recipes':
-        do {
-          this.currentSelectionIndex =
-            (this.currentSelectionIndex - 1 + this.recipeTexts.length) % this.recipeTexts.length
-        } while (this.isItemDisabled(this.recipeTexts[this.currentSelectionIndex]))
+        this.currentSelectionIndex =
+          (this.currentSelectionIndex - 1 + this.recipeTexts.length) % this.recipeTexts.length
         break
     }
     this.updateSelectionFrame()
@@ -296,10 +285,18 @@ export default class LabScene extends Phaser.Scene {
 
   updateCauldronText() {
     console.log('updateCauldronText')
+    const isPreview = this.currentSection === 'recipes' && this.recipeTexts[this.currentSelectionIndex]
+    const recipe = isPreview ? this.recipeTexts[this.currentSelectionIndex].recipe : null
+
     for (let i = 0; i < 2; i++) {
-      if (this.selectedIngredients[i]) {
+      if (isPreview && recipe?.ingredientCosts[i]) {
+        // Preview ingredients in grey
+        this.cauldronTexts[i].text.setText(recipe.ingredientCosts[i].ingredient)
+        this.cauldronTexts[i].text.setFill(getTextColor(false)) // Grey color for preview
+      } else if (this.selectedIngredients[i]) {
+        // Actual selected ingredients in white
         this.cauldronTexts[i].text.setText(this.selectedIngredients[i].toString())
-        this.cauldronTexts[i].text.setFill(getTextColor(true))
+        this.cauldronTexts[i].text.setFill(getTextColor(true)) // White color for selected
       } else {
         this.cauldronTexts[i].text.setText('Empty')
         this.cauldronTexts[i].text.setFill(getTextColor(false))
@@ -311,7 +308,7 @@ export default class LabScene extends Phaser.Scene {
   }
 
   selectRecipeIngredients() {
-    console.log('selectRecipeMaterials')
+    console.log('selectRecipeIngredients')
     const recipe = this.recipeTexts[this.currentSelectionIndex].recipe
     if (this.canAffordRecipe(recipe)) {
       this.selectedIngredients = recipe.ingredientCosts.map(m => m.ingredient as Ingredient)
@@ -348,10 +345,8 @@ export default class LabScene extends Phaser.Scene {
           console.log('Brewing failed, adding Shadowblight')
           ;(this.scene.get('MainScene') as MainScene).addShadowblight()
         } else {
-          console.log('Brewing succeeded, applying upgrade')
+          console.log('Brewing succeeded, adding potion')
           this.nest.ingredients[matchingRecipe.name] = (this.nest.ingredients[matchingRecipe.name] ?? 0) + 1
-          console.log(JSON.stringify(this.nest.ingredients))
-          // matchingRecipe.effect.apply(this.raven)
         }
 
         matchingRecipe.ingredientCosts.forEach(material => {
