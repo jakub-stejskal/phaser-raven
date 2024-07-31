@@ -89,13 +89,21 @@ export default class Citizen extends Phaser.GameObjects.Container {
     if (!this.isGuarded) {
       this.citizenSprite.anims.play(`npc-walk-${this.citizenType.sprite}`, true)
     } else {
-      // Ensure movement stops when guarded
-      this.stopMoving()
+      this.stopMoving() // Ensure movement stops when guarded
     }
 
     // Check if the citizen has reached the target position
     if (Phaser.Math.Distance.Between(this.x, this.y, this.targetX, this.targetY) < 5) {
       this.destroy()
+    }
+
+    // Determine direction of movement
+    if (this.body.velocity.x < 0) {
+      // Moving left
+      this.citizenSprite.setFlipX(false)
+    } else if (this.body.velocity.x > 0) {
+      // Moving right
+      this.citizenSprite.setFlipX(true)
     }
 
     this.depth = this.y + this.height / 2

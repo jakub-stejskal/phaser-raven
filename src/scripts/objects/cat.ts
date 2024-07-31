@@ -83,13 +83,22 @@ export default class Cat extends Phaser.GameObjects.Container {
       if (this.scene.raven.z > -5) {
         this.jumpTowardsRaven()
       } else {
-        // Stop
+        // Stop movement
         this.body.setVelocity(0)
       }
     }
 
     // Check collision with Raven for attacking
     this.scene.physics.overlap(this, this.scene.raven, this.onHitRaven, undefined, this)
+
+    // Determine direction of movement for flipping sprite
+    if (this.body.velocity.x < 0) {
+      // Moving left
+      this.catSprite.setFlipX(true)
+    } else if (this.body.velocity.x > 0) {
+      // Moving right
+      this.catSprite.setFlipX(false)
+    }
 
     this.depth = this.y + this.height / 2
   }

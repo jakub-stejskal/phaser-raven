@@ -106,15 +106,24 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.body.setVelocity(0)
 
     // Calculate speed adjustment based on weight
-    const weightFactor = Math.max(config.ITEM_MAX_WEIGHT_FACTOR, 1 - this.totalWeight / config.ITEM_WEIGHT_FACTOR_COEF) //
+    const weightFactor = Math.max(config.ITEM_MAX_WEIGHT_FACTOR, 1 - this.totalWeight / config.ITEM_WEIGHT_FACTOR_COEF)
     const walkingSpeed = this.z < 0 ? this.flyingSpeed * weightFactor : this.walkingSpeed
     const ascendSpeed = this.ascendSpeed * weightFactor
 
+    // Track whether the Raven is moving left or right
+    let movingLeft = false
+    let movingRight = false
+
+    // Handle left and right movement
     if (this.keys.A.isDown) {
       this.body.setVelocityX(-walkingSpeed)
+      movingLeft = true
     } else if (this.keys.D.isDown) {
       this.body.setVelocityX(walkingSpeed)
+      movingRight = true
     }
+
+    // Handle up and down movement
     if (this.keys.W.isDown) {
       this.body.setVelocityY(-walkingSpeed)
     } else if (this.keys.S.isDown) {
@@ -122,13 +131,15 @@ export default class Raven extends Phaser.GameObjects.Container {
     }
 
     // Flying logic (adjusts z for height)
-    if (this.isFlying) {
-      this.velocityZ = -ascendSpeed // Continue ascending while flying
+    if (this.cursors.space.isDown && this.stamina > 0) {
+      this.velocityZ = -ascendSpeed // Ascend
       this.useStamina(config.STAMINA_USE_FLYING)
+      this.ravenSprite.anims.play('fly', true)
     } else {
       this.velocityZ += config.SPEED_GRAVITY // Gravity effect
     }
     this.z += (this.velocityZ * this.scene.game.loop.delta) / 1000
+
     // Prevent raven from going below ground (z = 0)
     if (this.z > 0) {
       this.z = 0
@@ -137,9 +148,10 @@ export default class Raven extends Phaser.GameObjects.Container {
       this.ravenSprite.anims.stop()
     }
 
+    // Update animations and flip based on movement direction
     if (this.z === 0) {
       this.ravenSprite.anims.play('walk', true)
-      if (this.body.velocity.x === 0 && this.body.velocity.y == 0) {
+      if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
         this.ravenSprite.anims.stop()
       }
     }
@@ -149,6 +161,13 @@ export default class Raven extends Phaser.GameObjects.Container {
 
     // Adjust the shadow's scale based on height
     this.shadow.scale = 1 - (Math.abs(this.z) / 200) * 0.5
+
+    // Flip the sprite based on direction
+    if (movingLeft) {
+      this.ravenSprite.setFlipX(true)
+    } else if (movingRight) {
+      this.ravenSprite.setFlipX(false)
+    }
 
     this.depth = this.y + this.height / 2
 
