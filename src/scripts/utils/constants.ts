@@ -28,7 +28,7 @@ export const fatCitizen: CitizenType = {
   width: 100,
   velocity: 40,
   attackRange: 100,
-  sprite: 'fatCitizen'
+  sprite: 'citizen'
 }
 export const skinnyCitizen: CitizenType = {
   type: 'Skinny',

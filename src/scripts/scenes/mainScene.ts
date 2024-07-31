@@ -38,6 +38,9 @@ export default class MainScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#909090')
+    const background = this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'ground')
+    background.setOrigin(0.5, 0.5)
+    background.setDisplaySize(this.cameras.main.width, this.cameras.main.height) // Scale the image to fit the screen
 
     this.statusBar = new StatusBar(this, config.HEALTH_MAX, config.STAMINA_MAX)
 

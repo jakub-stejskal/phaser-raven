@@ -65,6 +65,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     // Initialize raven and its shadow and add them to the container
     this.shadow = this.scene.add.ellipse(0, 20, 40, 20, 0x000000, config.OBJECTS_SHADOW_ALPHA)
     this.ravenSprite = this.scene.add.sprite(0, -this.z, 'raven-walking')
+    this.ravenSprite.setScale(4)
     this.itemIndicators = []
     this.add(this.shadow)
     this.add(this.ravenSprite)
@@ -82,18 +83,18 @@ export default class Raven extends Phaser.GameObjects.Container {
   }
 
   setupAnimations() {
-    if (!this.scene.anims.exists('raven-flying')) {
+    if (!this.scene.anims.exists('fly')) {
       this.scene.anims.create({
         key: 'fly',
-        frames: this.scene.anims.generateFrameNumbers('raven-flying', { start: 0, end: 3 }),
+        frames: this.scene.anims.generateFrameNumbers('raven', { start: 2, end: 3 }),
         frameRate: 10,
         repeat: -1
       })
     }
-    if (!this.scene.anims.exists('raven-walking')) {
+    if (!this.scene.anims.exists('walk')) {
       this.scene.anims.create({
         key: 'walk',
-        frames: this.scene.anims.generateFrameNumbers('raven-walking', { start: 0, end: 3 }),
+        frames: this.scene.anims.generateFrameNumbers('raven', { start: 0, end: 1 }),
         frameRate: 10,
         repeat: -1
       })

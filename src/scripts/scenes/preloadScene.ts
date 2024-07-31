@@ -4,11 +4,12 @@ export default class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('nest', 'assets/img/nest.png')
-    this.load.spritesheet('raven-walking', 'assets/img/raven-walking.png', { frameWidth: 64, frameHeight: 64 })
-    this.load.spritesheet('raven-flying', 'assets/img/raven-flying.png', { frameWidth: 64, frameHeight: 64 })
-    this.load.spritesheet('childNpc', 'assets/img/childNpc.png', { frameWidth: 40, frameHeight: 80 })
-    this.load.spritesheet('fatCitizen', 'assets/img/fatCitizen.png', { frameWidth: 120, frameHeight: 100 })
+    this.load.image('nest', 'assets/img/nest1.png')
+    this.load.image('ground', 'assets/img/background.png')
+
+    this.load.spritesheet('raven', 'assets/img/raven.png', { frameWidth: 31, frameHeight: 26 })
+    this.load.spritesheet('citizen', 'assets/img/citizen.png', { frameWidth: 31, frameHeight: 26 })
+
     this.load.atlas('itemsAtlas', 'assets/img/items_4x.png', 'assets/img/items_4x.json')
     this.load.spritesheet('cat', 'assets/img/cat.png', { frameWidth: 32, frameHeight: 32 })
   }

@@ -60,10 +60,10 @@ export default class IntroScene extends Phaser.Scene {
 
     const entities = [
       {
-        sprite: 'raven-walking',
+        sprite: 'raven',
         name: 'Raven',
-        yOffset: 20,
-        scale: 0.8,
+        yOffset: 0,
+        scale: 4,
         description: 'Control the raven to gather items and avoid enemies.'
       },
       {
@@ -74,7 +74,7 @@ export default class IntroScene extends Phaser.Scene {
         description: 'Avoid these agile predators that hunt the raven.'
       },
       { name: 'Shadowblight', yOffset: 20, scale: 0.5, description: 'Avoid these dangerous shadows.' },
-      { sprite: 'fatCitizen', name: 'Citizen', yOffset: 20, scale: 0.5, description: 'Steal items from citizens.' },
+      { sprite: 'citizen', name: 'Citizen', yOffset: 20, scale: 2, description: 'Steal items from citizens.' },
       {
         sprite: 'nest',
         name: 'Nest',

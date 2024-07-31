@@ -50,6 +50,7 @@ export default class Citizen extends Phaser.GameObjects.Container {
       config.OBJECTS_SHADOW_ALPHA
     )
     this.citizenSprite = this.scene.add.sprite(0, 0, citizenType.sprite)
+    this.citizenSprite.setScale(4)
     this.add(this.shadow)
     this.add(this.citizenSprite)
 
@@ -153,6 +154,8 @@ export default class Citizen extends Phaser.GameObjects.Container {
     this.items.push(item)
     this.add(item)
     item.owner = this
+    item.setX(20)
+    item.setY(20)
   }
 
   stealItem() {
