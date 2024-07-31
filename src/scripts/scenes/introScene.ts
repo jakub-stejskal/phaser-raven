@@ -21,9 +21,10 @@ export default class IntroScene extends Phaser.Scene {
       .text(
         this.cameras.main.width * 0.25,
         200,
-        'In a land where shadows hold power, a raven seeks to gather magical essence.',
+        'The young alchemy apprentice Raven Shadowcast made a terrible mistake during one of his experiments, and he had to pay a terrible price: he became a raven, a little bird with feathers dark as night. Since then he is trying to turn back to his human form. To do so, he needs to brew a Transmutation potion. But in his raven form, he has no other choice than to steal shiny items from his fellow citizens on the townsquare and use them to brew potions.\n' +
+          "Unfortunately, he's not sure what he needs for the Transmutation potion, but he remembers that it's made by mixing other potions.",
         {
-          fontSize: '24px',
+          fontSize: '12px',
           color: '#ffffff',
           wordWrap: { width: this.cameras.main.width * 0.4 }
         }
@@ -34,11 +35,12 @@ export default class IntroScene extends Phaser.Scene {
     this.add
       .text(
         this.cameras.main.width * 0.25,
-        300,
+        400,
         'Tutorial:\n' +
           ' - Use W/A/S/D to move.\n' +
           ' - SPACE to fly.\n' +
           ' - SHIFT to enter the nest.\n' +
+          ' - ENTER in nest to drink potions.\n' +
           ' - Steal items from citizens.\n' +
           ' - Avoid cats and shadowblights.\n' +
           ' - Return items to your nest.\n' +
