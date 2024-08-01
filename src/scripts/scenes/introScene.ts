@@ -69,7 +69,7 @@ export default class IntroScene extends Phaser.Scene {
       {
         sprite: 'cat',
         name: 'Cat',
-        yOffset: -10,
+        yOffset: 10,
         scale: 4,
         description: 'Avoid these agile predators that hunt the raven.'
       },
@@ -79,7 +79,7 @@ export default class IntroScene extends Phaser.Scene {
         sprite: 'nest',
         name: 'Nest',
         yOffset: 30,
-        scale: 0.6,
+        scale: 3,
         description: 'Store your loot and combine materials for upgrades.'
       }
     ]

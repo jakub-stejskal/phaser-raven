@@ -92,11 +92,6 @@ export default class Citizen extends Phaser.GameObjects.Container {
       this.stopMoving() // Ensure movement stops when guarded
     }
 
-    // Check if the citizen has reached the target position
-    if (Phaser.Math.Distance.Between(this.x, this.y, this.targetX, this.targetY) < 5) {
-      this.destroy()
-    }
-
     // Determine direction of movement
     if (this.body.velocity.x < 0) {
       // Moving left
@@ -107,6 +102,11 @@ export default class Citizen extends Phaser.GameObjects.Container {
     }
 
     this.depth = this.y + this.height / 2
+
+    // Check if the citizen has reached the target position
+    if (Phaser.Math.Distance.Between(this.x, this.y, this.targetX, this.targetY) < 5) {
+      this.destroy()
+    }
   }
 
   alert(raven: Raven) {

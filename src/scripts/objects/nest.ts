@@ -24,7 +24,7 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
     this.scene.add.existing(this)
     this.scene.physics.add.existing(this)
 
-    const RESOURCES_OFFSET = 40
+    const RESOURCES_OFFSET = 80
     this.essenceText = this.scene.add.text(this.x - this.width / 2 - RESOURCES_OFFSET, this.y + 50, '', {
       fontSize: '14px',
       color: '#ffffff'
@@ -40,7 +40,6 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
     items.forEach(item => {
       this.essence += item.essenceValue
       this.ingredients[item.material] = (this.ingredients[item.material] || 0) + 1
-      item.destroy()
     })
     this.updateResourceDisplay()
 

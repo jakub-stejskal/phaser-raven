@@ -47,7 +47,7 @@ export default class MainScene extends Phaser.Scene {
     this.citizenFactory = new CitizenFactory(this)
     this.itemFactory = new ItemFactory(this)
 
-    this.nest = new Nest(this, this.cameras.main.width - config.NEST_WIDTH / 2, config.NEST_HEIGHT / 2)
+    this.nest = new Nest(this, this.cameras.main.width - config.NEST_WIDTH / 2 - 20, config.NEST_HEIGHT / 2)
     this.raven = new Raven(this, this.cameras.main.width - config.NEST_WIDTH / 2 - 100, config.NEST_HEIGHT / 2)
     this.itemsGroup = this.physics.add.group({ classType: Item, runChildUpdate: true })
     this.citizenGroup = this.physics.add.group({ classType: Citizen, runChildUpdate: true })
