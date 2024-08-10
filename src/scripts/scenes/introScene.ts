@@ -39,9 +39,9 @@ export default class IntroScene extends Phaser.Scene {
         'Tutorial:\n' +
           ' - Use W/A/S/D to move.\n' +
           ' - SPACE to fly.\n' +
-          ' - SHIFT to enter the nest.\n' +
-          ' - ENTER in nest to drink potions.\n' +
-          ' - Steal items from citizens.\n' +
+          ' - ENTER to enter or exit the nest.\n' +
+          ' - SHIFT to steal items from citizens.\n' +
+          ' - SHIFT in the nest to drink potions.\n' +
           ' - Avoid cats and shadowblights.\n' +
           ' - Return items to your nest.\n' +
           ' - Combine materials to brew potions.\n' +

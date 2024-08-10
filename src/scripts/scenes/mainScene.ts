@@ -10,8 +10,8 @@ import StatusBar from '../objects/statusBar'
 import { random } from '../utils/math'
 import Cat from '../objects/cat'
 
-const CONTROLS_TIP_MAIN = 'W/A/S/D: Walk      SPACE: Fly     SHIFT: Enter the Nest'
-const CONTROLS_TIP_NEST = 'W/A/S/D: Navigate  SPACE: Select  ENTER: Drink a Potion SHIFT: Exit the Nest '
+const CONTROLS_TIP_MAIN = 'W/A/S/D: Walk      SPACE: Fly     SHIFT: Steal an Item   ENTER: Enter the Nest '
+const CONTROLS_TIP_NEST = 'W/A/S/D: Navigate  SPACE: Select  SHIFT: Drink a Potion  ENTER: Leave the Nest'
 
 export default class MainScene extends Phaser.Scene {
   statusBar: StatusBar
@@ -64,7 +64,7 @@ export default class MainScene extends Phaser.Scene {
     // citizen.giveItem(item)
     // this.citizenGroup.add(citizen)
 
-    this.input.keyboard.on('keydown-SHIFT', () => {
+    this.input.keyboard.on('keydown-ENTER', () => {
       if (this.raven.isInNest()) {
         this.enterLabTransition()
       }
@@ -72,7 +72,6 @@ export default class MainScene extends Phaser.Scene {
     this.events.on('resume', this.handleResume, this)
 
     // Collision handlers
-    this.physics.add.overlap(this.raven, this.itemsGroup, this.collectItem, undefined, this)
     this.physics.add.overlap(this.raven, this.nest, this.enterNest, undefined, this)
     this.physics.add.overlap(this.raven, this.citizenGroup, this.alertCitizen, undefined, this)
 
@@ -163,17 +162,6 @@ export default class MainScene extends Phaser.Scene {
   }
 
   // Collision handlers
-
-  collectItem(ravenObj: Phaser.GameObjects.GameObject, itemObj: Phaser.GameObjects.GameObject) {
-    const raven = ravenObj as Raven
-    const item = itemObj as Item
-
-    if (raven.z > -10 && raven.collectItem(item)) {
-      return true
-    }
-    return false
-  }
-
   enterNest(ravenObj: Phaser.GameObjects.GameObject, nest: Phaser.GameObjects.GameObject) {
     const raven = ravenObj as Raven
     if (raven.z > -10) {

@@ -3,6 +3,8 @@ import Raven from './raven'
 import { CitizenType as CitizenType } from '../utils/types'
 import config from '../config'
 
+const SPRITE_SCALE = 4
+
 export default class Citizen extends Phaser.GameObjects.Container {
   shadow: Phaser.GameObjects.Ellipse
   citizenSprite: Phaser.GameObjects.Sprite
@@ -13,6 +15,7 @@ export default class Citizen extends Phaser.GameObjects.Container {
   isWalking: boolean
   damage: number
 
+  attackRate = 1000
   guardingDelay = 1000 // 1 second delay before becoming guarded
   alertTimer: Phaser.Time.TimerEvent | null
   attackCooldownTimer: Phaser.Time.TimerEvent | null
@@ -41,16 +44,17 @@ export default class Citizen extends Phaser.GameObjects.Container {
     this.body.setOffset(-this.citizenType.width / 2, -this.citizenType.height / 2)
 
     // Initialize citizen and its shadow and add them to the container
+    const shadowSize = this.citizenType.width * 0.8
     this.shadow = this.scene.add.ellipse(
       0,
-      this.citizenType.height / 2,
-      this.citizenType.width,
-      this.citizenType.height / 2,
+      50,
+      shadowSize,
+      shadowSize * config.OBJECTS_SHADOW_RATIO,
       0x000000,
       config.OBJECTS_SHADOW_ALPHA
     )
     this.citizenSprite = this.scene.add.sprite(0, 0, citizenType.sprite)
-    this.citizenSprite.setScale(4)
+    this.citizenSprite.setScale(SPRITE_SCALE)
     this.add(this.shadow)
     this.add(this.citizenSprite)
 
@@ -123,7 +127,7 @@ export default class Citizen extends Phaser.GameObjects.Container {
           // Revert back to normal after a certain time
           this.scene.time.addEvent({
             delay: 5000,
-            callback: this.calmDown,
+            callback: () => this.calmDown(raven),
             callbackScope: this
           })
 
@@ -135,21 +139,33 @@ export default class Citizen extends Phaser.GameObjects.Container {
     }
   }
 
-  calmDown() {
-    this.isGuarded = false
-    this.startWalking()
-    this.animateCalming()
+  calmDown(raven: Raven) {
+    // Check if Raven is still in range and guarded state is active
+    const ravenInRange = Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y) < this.citizenType.attackRange
 
-    // Clear any existing attack cooldown timer
-    if (this.attackCooldownTimer) {
-      this.attackCooldownTimer.remove()
-      this.attackCooldownTimer = null
-    }
+    if (!ravenInRange || !this.isGuarded) {
+      this.isGuarded = false
+      this.startWalking()
+      this.animateCalming()
 
-    // Clear the alert timer to allow future alerts
-    if (this.alertTimer) {
-      this.alertTimer.remove()
-      this.alertTimer = null
+      // Clear any existing attack cooldown timer
+      if (this.attackCooldownTimer) {
+        this.attackCooldownTimer.remove()
+        this.attackCooldownTimer = null
+      }
+
+      // Clear the alert timer to allow future alerts
+      if (this.alertTimer) {
+        this.alertTimer.remove()
+        this.alertTimer = null
+      }
+    } else {
+      // Raven is still in range; reset the calmDown timer
+      this.alertTimer = this.scene.time.addEvent({
+        delay: 1000, // Retry calming down after 1 second
+        callback: () => this.calmDown(raven),
+        callbackScope: this
+      })
     }
   }
 
@@ -177,13 +193,11 @@ export default class Citizen extends Phaser.GameObjects.Container {
   attackRaven(raven: Raven) {
     if (!this.attackCooldownTimer) {
       this.attackCooldownTimer = this.scene.time.addEvent({
-        delay: 1000, // Attack every second
+        delay: this.attackRate,
         callback: () => {
-          if (
-            this.isGuarded &&
-            Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y) < this.citizenType.attackRange &&
-            raven.z > -this.citizenType.attackRange
-          ) {
+          const ravenInRange =
+            Phaser.Math.Distance.Between(this.x, this.y, raven.x, raven.y) < this.citizenType.attackRange
+          if (this.isGuarded && ravenInRange && raven.z > -this.citizenType.attackRange) {
             raven.takeDamage(this.damage)
             raven.items = [] // Remove all items from the Raven when attacked
             this.animateHit()
@@ -202,8 +216,8 @@ export default class Citizen extends Phaser.GameObjects.Container {
   animateAlert() {
     this.scene.tweens.add({
       targets: this.citizenSprite,
-      scaleX: 1.2,
-      scaleY: 1.2,
+      scaleX: SPRITE_SCALE * 1.2,
+      scaleY: SPRITE_SCALE * 1.2,
       yoyo: true,
       duration: 50,
       ease: 'Power1'
@@ -213,8 +227,8 @@ export default class Citizen extends Phaser.GameObjects.Container {
   animateHit() {
     this.scene.tweens.add({
       targets: this.citizenSprite,
-      scaleX: 1.3,
-      scaleY: 1.3,
+      scaleX: SPRITE_SCALE * 1.3,
+      scaleY: SPRITE_SCALE * 1.3,
       yoyo: true,
       duration: 100,
       ease: 'Power1'

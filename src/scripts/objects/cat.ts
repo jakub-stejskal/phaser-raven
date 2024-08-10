@@ -36,7 +36,15 @@ export default class Cat extends Phaser.GameObjects.Container {
     this.catSprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST)
 
     // Create the shadow as an ellipse
-    this.shadow = this.scene.add.ellipse(0, SIZE / 2, SIZE, SIZE / 2, 0x000000, config.OBJECTS_SHADOW_ALPHA)
+    const shadowSize = SIZE * 0.8
+    this.shadow = this.scene.add.ellipse(
+      3,
+      shadowSize / 2,
+      shadowSize,
+      shadowSize * config.OBJECTS_SHADOW_RATIO,
+      0x000000,
+      config.OBJECTS_SHADOW_ALPHA
+    )
     this.shadow.setOrigin(0, -0.5) // Center the ellipse
 
     this.add(this.shadow)

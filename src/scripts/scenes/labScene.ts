@@ -57,9 +57,9 @@ export default class LabScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-A', this.previousSection, this)
     this.input.keyboard.on('keydown-S', this.nextItem, this)
     this.input.keyboard.on('keydown-W', this.previousItem, this)
-    this.input.keyboard.on('keydown-SHIFT', this.returnToMainScene, this)
+    this.input.keyboard.on('keydown-ENTER', this.returnToMainScene, this)
     this.input.keyboard.on('keydown-SPACE', this.selectItem, this)
-    this.input.keyboard.on('keydown-ENTER', this.drinkPotion, this)
+    this.input.keyboard.on('keydown-SHIFT', this.drinkPotion, this)
 
     this.selectionFrame = this.add.rectangle(0, 0, 0, 0, 0xffffff, 0.5).setVisible(false)
     this.updateSelectionFrame()

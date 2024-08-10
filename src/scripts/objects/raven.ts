@@ -2,7 +2,6 @@ import Item from './item'
 import Nest from './nest'
 import config from '../config'
 import MainScene from '../scenes/mainScene'
-import { Potion } from '../utils/types'
 
 interface WASD {
   W: Phaser.Input.Keyboard.Key
@@ -10,6 +9,8 @@ interface WASD {
   S: Phaser.Input.Keyboard.Key
   D: Phaser.Input.Keyboard.Key
 }
+
+const SPRITE_SCALE = 4
 
 export default class Raven extends Phaser.GameObjects.Container {
   shadow: Phaser.GameObjects.Ellipse
@@ -22,6 +23,7 @@ export default class Raven extends Phaser.GameObjects.Container {
   scene: MainScene
 
   items: Item[]
+  itemInReach: Item | null
   totalWeight: number
   health: number
   stamina: number
@@ -59,13 +61,21 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.scene.physics.add.existing(this)
     // center collision box
     this.body.setSize(40, 40)
-    this.body.setOffset(-20, -10)
+    this.body.setOffset(-20, 10)
     this.body.setCollideWorldBounds(true)
 
     // Initialize raven and its shadow and add them to the container
-    this.shadow = this.scene.add.ellipse(0, 20, 40, 20, 0x000000, config.OBJECTS_SHADOW_ALPHA)
+    const shadowSize = 40
+    this.shadow = this.scene.add.ellipse(
+      0,
+      52,
+      shadowSize,
+      shadowSize * config.OBJECTS_SHADOW_RATIO,
+      0x000000,
+      config.OBJECTS_SHADOW_ALPHA
+    )
     this.ravenSprite = this.scene.add.sprite(0, -this.z, 'raven-walking')
-    this.ravenSprite.setScale(4)
+    this.ravenSprite.setScale(SPRITE_SCALE)
     this.itemIndicators = []
     this.add(this.shadow)
     this.add(this.ravenSprite)
@@ -75,6 +85,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.keys = this.scene.input.keyboard.addKeys('W,A,S,D') as WASD
     this.scene.input.keyboard.on('keydown-SPACE', this.startFlying, this)
     this.scene.input.keyboard.on('keyup-SPACE', this.stopFlying, this)
+    this.scene.input.keyboard.on('keyup-SHIFT', this.collectItem, this)
 
     this.debugText.setDepth(Number.MAX_SAFE_INTEGER)
 
@@ -107,7 +118,7 @@ export default class Raven extends Phaser.GameObjects.Container {
 
     // Calculate speed adjustment based on weight
     const weightFactor = Math.max(config.ITEM_MAX_WEIGHT_FACTOR, 1 - this.totalWeight / config.ITEM_WEIGHT_FACTOR_COEF)
-    const walkingSpeed = this.z < 0 ? this.flyingSpeed * weightFactor : this.walkingSpeed
+    const speed = this.z < 0 ? this.flyingSpeed * weightFactor : this.walkingSpeed
     const ascendSpeed = this.ascendSpeed * weightFactor
 
     // Track whether the Raven is moving left or right
@@ -116,25 +127,24 @@ export default class Raven extends Phaser.GameObjects.Container {
 
     // Handle left and right movement
     if (this.keys.A.isDown) {
-      this.body.setVelocityX(-walkingSpeed)
+      this.body.setVelocityX(-speed)
       movingLeft = true
     } else if (this.keys.D.isDown) {
-      this.body.setVelocityX(walkingSpeed)
+      this.body.setVelocityX(speed)
       movingRight = true
     }
 
     // Handle up and down movement
     if (this.keys.W.isDown) {
-      this.body.setVelocityY(-walkingSpeed)
+      this.body.setVelocityY(-speed)
     } else if (this.keys.S.isDown) {
-      this.body.setVelocityY(walkingSpeed)
+      this.body.setVelocityY(speed)
     }
 
     // Flying logic (adjusts z for height)
-    if (this.cursors.space.isDown && this.stamina > 0) {
+    if (this.isFlying) {
       this.velocityZ = -ascendSpeed // Ascend
       this.useStamina(config.STAMINA_USE_FLYING)
-      this.ravenSprite.anims.play('fly', true)
     } else {
       this.velocityZ += config.SPEED_GRAVITY // Gravity effect
     }
@@ -171,6 +181,7 @@ export default class Raven extends Phaser.GameObjects.Container {
 
     this.depth = this.y + this.height / 2
 
+    this.detectNearbyItems()
     this.updateItemIndicators()
 
     // Recover stamina when not moving or flying
@@ -185,7 +196,7 @@ export default class Raven extends Phaser.GameObjects.Container {
 
   startFlying() {
     // Require at least 10% stamina to fly
-    if (this.stamina > config.STAMINA_MAX / 10) {
+    if (this.stamina > config.STAMINA_MIN_FLY) {
       this.isFlying = true
       this.velocityZ = -this.ascendSpeed // Ascend
       this.useStamina(config.STAMINA_USE_FLYING)
@@ -207,13 +218,33 @@ export default class Raven extends Phaser.GameObjects.Container {
     return (this.nest && this.scene.physics.overlap(this, this.nest)) ?? false
   }
 
-  collectItem(item: Item): boolean {
-    if (item.owner?.isGuarded) return false
-    if (this.items.length >= config.ITEM_MAX_CARRIED) return false
+  detectNearbyItems() {
+    // Reset the nearbyItem to null before checking
+    this.itemInReach = null
 
-    this.items.push(item)
-    this.totalWeight += item.weight
-    item.destroy()
+    this.scene.physics.overlap(this, this.scene.itemsGroup, (_, itemObject) => {
+      const item = itemObject as Item
+
+      if (this.z > -10 && !item.owner?.isGuarded) {
+        // Set the itemInReach to the first overlapping item found
+        this.itemInReach = item
+      }
+    })
+
+    // TODO: provide feedback to the player when an item is nearby
+    // if (this.itemInReach) {}
+  }
+
+  collectItem(): boolean {
+    console.log('collectItem', this.itemInReach, this.itemInReach?.owner?.isGuarded)
+    if (!this.itemInReach || this.itemInReach?.owner?.isGuarded || this.items.length >= config.ITEM_MAX_CARRIED) {
+      return false
+    }
+    console.log('collectItem success')
+    this.items.push(this.itemInReach)
+    this.totalWeight += this.itemInReach.weight
+    this.itemInReach.destroy()
+    this.itemInReach = null
     return true
   }
 
