@@ -118,13 +118,11 @@ export default class MainScene extends Phaser.Scene {
   }
 
   addShadowblight() {
-    const PADDING = 100
+    const PADDING = { x: config.SCENE_WIDTH / 4, y: config.SCENE_HEIGHT / 4 }
     const shadowBlight = new Shadowblight(
       this,
-      config.SCENE_WIDTH / 2,
-      config.SCENE_HEIGHT / 2
-      // random(PADDING, config.SCENE_WIDTH - PADDING),
-      // random(PADDING, config.SCENE_HEIGHT - PADDING)
+      random(PADDING.x, config.SCENE_WIDTH - PADDING.x),
+      random(PADDING.y, config.SCENE_HEIGHT - PADDING.y)
     )
     this.shadowBlightGroup.add(shadowBlight)
   }

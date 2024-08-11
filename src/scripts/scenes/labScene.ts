@@ -4,6 +4,7 @@ import Raven from '../objects/raven'
 import MainScene from './mainScene'
 import getRecipes from '../utils/potion-factory'
 import { POTION_TYPES } from '../utils/constants'
+import config from '../config'
 
 const getTextColor = (enabled: boolean = true): string => {
   return enabled ? '#fff' : '#aaa'
@@ -26,6 +27,7 @@ export default class LabScene extends Phaser.Scene {
   nest!: Nest
   selectedIngredients: Ingredient[] = []
   ingredientTexts: { text: Phaser.GameObjects.Text; ingredient: Ingredient }[] = []
+  essenceText!: Phaser.GameObjects.Text
   cauldronTexts: { text: Phaser.GameObjects.Text }[] = []
   recipeTexts: { text: Phaser.GameObjects.Text; recipe: Potion }[] = []
   currentSelectionIndex: number = 0
@@ -40,18 +42,14 @@ export default class LabScene extends Phaser.Scene {
   }
 
   init({ raven, nest }: { raven: Raven; nest: Nest }) {
-    console.log('init')
     this.raven = raven
     this.nest = nest
   }
 
   create() {
-    console.log('create')
     this.add.graphics().fillStyle(0x000000, 0.7).fillRect(0, 0, this.cameras.main.width, this.cameras.main.height)
 
-    this.createMaterialList()
-    this.createRecipeList()
-    this.createCauldron()
+    this.createGraphics()
 
     this.input.keyboard.on('keydown-D', this.nextSection, this)
     this.input.keyboard.on('keydown-A', this.previousSection, this)
@@ -60,13 +58,25 @@ export default class LabScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-ENTER', this.returnToMainScene, this)
     this.input.keyboard.on('keydown-SPACE', this.selectItem, this)
     this.input.keyboard.on('keydown-SHIFT', this.drinkPotion, this)
+  }
+
+  createGraphics() {
+    // this.children.each(child => child.destroy())
+    this.ingredientTexts.forEach(text => text.text.destroy())
+    this.cauldronTexts.forEach(text => text.text.destroy())
+    this.recipeTexts.forEach(text => text.text.destroy())
+    this.essenceText?.destroy()
+    this.selectionFrame?.destroy()
+
+    this.createMaterialList()
+    this.createRecipeList()
+    this.createCauldron()
 
     this.selectionFrame = this.add.rectangle(0, 0, 0, 0, 0xffffff, 0.5).setVisible(false)
     this.updateSelectionFrame()
   }
 
   createMaterialList() {
-    console.log('createMaterialList')
     this.add.text(100, this.cameras.main.centerY - 140, 'Materials', FONT_HEADING)
 
     this.ingredientTexts = []
@@ -81,11 +91,10 @@ export default class LabScene extends Phaser.Scene {
 
     // Add essence counter below material items
     y += 20 // Add some space before the essence counter
-    this.add.text(100, y, `Essence: ${this.nest.essence}`, FONT_ITEM(true))
+    this.essenceText = this.add.text(100, y, `Essence: ${this.nest.essence}`, FONT_ITEM(true))
   }
 
   createRecipeList() {
-    console.log('createRecipeList')
     this.add.text(this.cameras.main.width - 300, this.cameras.main.centerY - 140, 'Recipes', FONT_HEADING)
 
     this.recipeTexts = []
@@ -101,7 +110,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   createCauldron() {
-    console.log('createCauldron')
     this.add
       .text(this.cameras.main.width / 2, this.cameras.main.centerY - 140, 'Cauldron', FONT_HEADING)
       .setOrigin(0.5, 0)
@@ -129,7 +137,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   updateSelectionFrame() {
-    console.log('updateSelectionFrame')
     let text!: Phaser.GameObjects.Text
     this.selectionFrame.setVisible(false)
 
@@ -163,7 +170,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   nextSection() {
-    console.log('nextSection')
     for (let i = 0; i < this.sections.length; i++) {
       this.currentSection = this.sections[(this.sections.indexOf(this.currentSection) + 1) % this.sections.length]
       if (this.hasEnabledItemsInCurrentSection()) {
@@ -177,7 +183,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   previousSection() {
-    console.log('previousSection')
     for (let i = 0; i < this.sections.length; i++) {
       this.currentSection =
         this.sections[(this.sections.indexOf(this.currentSection) - 1 + this.sections.length) % this.sections.length]
@@ -208,7 +213,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   nextItem() {
-    console.log('nextItem')
     switch (this.currentSection) {
       case 'materials':
         this.currentSelectionIndex = (this.currentSelectionIndex + 1) % this.ingredientTexts.length
@@ -224,7 +228,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   previousItem() {
-    console.log('previousItem')
     switch (this.currentSection) {
       case 'materials':
         this.currentSelectionIndex =
@@ -246,7 +249,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   selectItem() {
-    console.log('selectItem')
     switch (this.currentSection) {
       case 'materials':
         this.addMaterialToCauldron()
@@ -265,7 +267,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   addMaterialToCauldron() {
-    console.log('addMaterialToCauldron')
     const ingredient = this.ingredientTexts[this.currentSelectionIndex].ingredient
     if (this.selectedIngredients.length < 2 && (this.nest.ingredients[ingredient] ?? 0) >= 1) {
       this.selectedIngredients.push(ingredient)
@@ -275,7 +276,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   removeMaterialFromCauldron(index: number) {
-    console.log('removeMaterialFromCauldron')
     if (this.selectedIngredients.length > index) {
       this.selectedIngredients.splice(index, 1)
       this.updateCauldronText()
@@ -284,7 +284,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   updateCauldronText() {
-    console.log('updateCauldronText')
     const isPreview = this.currentSection === 'recipes' && this.recipeTexts[this.currentSelectionIndex]
     const recipe = isPreview ? this.recipeTexts[this.currentSelectionIndex].recipe : null
 
@@ -308,7 +307,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   selectRecipeIngredients() {
-    console.log('selectRecipeIngredients')
     const recipe = this.recipeTexts[this.currentSelectionIndex].recipe
     if (this.canAffordRecipe(recipe)) {
       this.selectedIngredients = recipe.ingredientCosts.map(m => m.ingredient as Ingredient)
@@ -318,7 +316,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   canAffordRecipe(recipe: Potion): boolean {
-    console.log('canAffordRecipe', recipe.name, this.nest.ingredients)
     return this.nest.essence >= recipe.essenceCost && this.hasIngredientsForRecipe(recipe)
   }
 
@@ -329,7 +326,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   brew() {
-    console.log('brew')
     if (this.selectedIngredients.length === 2) {
       const matchingRecipe = getRecipes().find(
         recipe =>
@@ -340,13 +336,12 @@ export default class LabScene extends Phaser.Scene {
       if (matchingRecipe && this.nest.essence >= matchingRecipe.essenceCost) {
         this.nest.essence -= matchingRecipe.essenceCost
 
-        // TODO: Visual effect for brewing and failure/Shadowblight spawn
-        if (Math.random() < 0.1) {
-          console.log('Brewing failed, adding Shadowblight')
+        if (Math.random() < config.BREWING_FAILURE_RATE) {
           ;(this.scene.get('MainScene') as MainScene).addShadowblight()
+          this.showBrewSnackbar('Brewing failed! Shadowblight has been summoned!')
         } else {
-          console.log('Brewing succeeded, adding potion')
           this.nest.ingredients[matchingRecipe.name] = (this.nest.ingredients[matchingRecipe.name] ?? 0) + 1
+          this.showBrewSnackbar(`Successfully brewed a ${matchingRecipe.name} potion!`, '#00FF00')
         }
 
         matchingRecipe.ingredientCosts.forEach(material => {
@@ -355,10 +350,10 @@ export default class LabScene extends Phaser.Scene {
         })
 
         this.selectedIngredients = []
-        this.scene.restart({ raven: this.raven, nest: this.nest })
       } else {
-        console.log('Not enough essence or materials for brewing.')
+        this.showBrewSnackbar('Not enough essence or materials for brewing.', '#FFA500')
       }
+      this.createGraphics()
     } else {
       console.log('Not enough materials selected.')
     }
@@ -371,41 +366,77 @@ export default class LabScene extends Phaser.Scene {
         this.nest.ingredients[ingredient] = (this.nest.ingredients[ingredient] ?? 0) - 1
         const potion = getRecipes().find(p => p.name === ingredient)
         potion?.effect.apply(this.raven)
-        console.log(`Just drunk a ${JSON.stringify(potion)} potion!`)
         this.updateSelectionFrame()
 
-        const potionEffectText: Phaser.GameObjects.Text = new Phaser.GameObjects.Text(
-          this,
-          this.cameras.main.centerX - 400,
-          this.cameras.main.centerY - 250,
-          potion?.effect.name ?? '',
-          {
-            fontSize: '16px',
-            color: '#ABCDEF',
-            fontStyle: 'bold',
-            backgroundColor: '00000'
-          }
-        )
-        this.add.existing(potionEffectText)
-
-        // Fade out the text after 3 seconds
-        this.time.delayedCall(2000, () => {
-          this.tweens.add({
-            targets: potionEffectText,
-            alpha: { from: 1, to: 0 },
-            duration: 1000,
-            ease: 'Linear',
-            onComplete: () => {
-              // Optional: Destroy the text after fading out
-              this.scene.restart({ raven: this.raven, nest: this.nest })
-              potionEffectText.destroy()
-            }
-          })
-        })
-
-        // this.scene.restart({ raven: this.raven, nest: this.nest })
+        this.showDrinkSnackbar(`You drank a ${potion?.name} potion!`)
       }
     }
+  }
+
+  // Inside the LabScene class
+
+  /**
+   * Displays a snackbar notification with the given text, style, and position.
+   * @param message The text message to display.
+   * @param style The styling options for the text.
+   * @param position The position object containing x and y coordinates.
+   * @param duration The duration (in milliseconds) before the snackbar fades out. Default is 3000ms.
+   */
+  private showSnackbar(
+    message: string,
+    style: Phaser.Types.GameObjects.Text.TextStyle,
+    position: { x: number; y: number },
+    duration: number = 3000
+  ) {
+    const snackbarText = new Phaser.GameObjects.Text(
+      this,
+      this.cameras.main.centerX + position.x,
+      this.cameras.main.centerY + position.y,
+      message,
+      style
+    )
+    snackbarText.setOrigin(0.5) // Center the text
+    snackbarText.depth = 1 // Ensure the text is above everything else
+    this.add.existing(snackbarText)
+
+    // Fade out the text after the specified duration
+    this.time.delayedCall(duration, () => {
+      this.tweens.add({
+        targets: snackbarText,
+        alpha: { from: 1, to: 0 },
+        duration: 1000,
+        ease: 'Linear',
+        onComplete: () => {
+          snackbarText.destroy()
+        }
+      })
+    })
+  }
+
+  private showBrewSnackbar(message: string, color = '#FF4C4C') {
+    this.showSnackbar(
+      message,
+      {
+        fontSize: '16px',
+        color,
+        fontStyle: 'bold',
+        backgroundColor: '#000000'
+      },
+      { x: 0, y: 250 }
+    )
+  }
+
+  private showDrinkSnackbar(message: string, color = '#ABCDEF') {
+    this.showSnackbar(
+      message,
+      {
+        fontSize: '16px',
+        color,
+        fontStyle: 'bold',
+        backgroundColor: '#000000'
+      },
+      { x: 0, y: -250 }
+    )
   }
 
   getAvailableIngredientAmount(ingredient: Ingredient): number {
@@ -413,7 +444,6 @@ export default class LabScene extends Phaser.Scene {
   }
 
   returnToMainScene() {
-    console.log('returnToMainScene')
     this.scene.stop()
     this.scene.resume('MainScene')
   }

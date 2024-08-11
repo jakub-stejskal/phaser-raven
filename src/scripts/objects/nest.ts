@@ -2,6 +2,7 @@ import MainScene from '../scenes/mainScene'
 import Item from './item'
 import Raven from './raven'
 import { Ingredient } from '../utils/types'
+import config from '../config'
 
 export default class Nest extends Phaser.Physics.Arcade.Sprite {
   scene: MainScene
@@ -13,12 +14,14 @@ export default class Nest extends Phaser.Physics.Arcade.Sprite {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'nest')
     this.setScale(4)
-    this.essence = 0
+
+    const INIT_INGREDIENTS_COINT = config.DEBUG ? 20 : 0
+    this.essence = INIT_INGREDIENTS_COINT * 10
     this.ingredients = {
-      'Mystic Crystals': 0,
-      'Precious Metals': 0,
-      'Ancient Scrolls': 0,
-      'Herbal Extracts': 0
+      'Mystic Crystals': INIT_INGREDIENTS_COINT,
+      'Precious Metals': INIT_INGREDIENTS_COINT,
+      'Ancient Scrolls': INIT_INGREDIENTS_COINT,
+      'Herbal Extracts': INIT_INGREDIENTS_COINT
     }
 
     this.scene.add.existing(this)

@@ -41,7 +41,9 @@ export default class EndingScene extends Phaser.Scene {
 
     // Listen for SPACE key press to restart the game
     this.input.keyboard.on('keydown-SPACE', () => {
-      this.scene.start('IntroScene') // Restart the game from the intro scene
+      this.scene.stop('MainScene')
+      this.scene.stop('LabScene')
+      this.scene.start('IntroScene')
     })
   }
 }
