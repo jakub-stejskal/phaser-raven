@@ -9,6 +9,7 @@ import ItemFactory from '../utils/item-factory'
 import StatusBar from '../objects/statusBar'
 import { random } from '../utils/math'
 import Cat from '../objects/cat'
+import Controls from '../utils/controls'
 
 const CONTROLS_TIP_MAIN = 'W/A/S/D: Walk      SPACE: Fly     SHIFT: Steal an Item   ENTER: Enter the Nest '
 const CONTROLS_TIP_NEST = 'W/A/S/D: Navigate  SPACE: Select  SHIFT: Drink a Potion  ENTER: Leave the Nest'
@@ -57,14 +58,8 @@ export default class MainScene extends Phaser.Scene {
     this.addShadowblight()
     this.addCat()
 
-    // // TODO: Remove this. For testing purposes only
-    // const item = this.itemFactory.createItem(0, 0)
-    // this.itemsGroup.add(item)
-    // const citizen = new Citizen(this, 0, 0, config.SCENE_WIDTH, config.SCENE_HEIGHT, fatCitizen)
-    // citizen.giveItem(item)
-    // this.citizenGroup.add(citizen)
-
-    this.input.keyboard.on('keydown-ENTER', () => {
+    const controls = new Controls(this)
+    controls.on('enterOrLeave', () => {
       if (this.raven.isInNest()) {
         this.enterLabTransition()
       }
@@ -205,17 +200,17 @@ export default class MainScene extends Phaser.Scene {
 
   addDebugGraphics() {
     // Create a graphics object for drawing
-    const graphics = this.add.graphics()
+    // const graphics = this.add.graphics()
     // Draw vertical line at x = sceneWidth - config.NEST_WIDTH
-    graphics.lineStyle(2, 0x0000ff).beginPath()
-    graphics.moveTo(config.SCENE_WIDTH - config.NEST_WIDTH, 0)
-    graphics.lineTo(config.SCENE_WIDTH - config.NEST_WIDTH, config.SCENE_HEIGHT)
-    graphics.strokePath() // Apply the line style and draw the line
-    // Draw horizontal line at y = config.NEST_HEIGHT
-    graphics.lineStyle(2, 0x0000ff).beginPath()
-    graphics.moveTo(0, config.NEST_HEIGHT)
-    graphics.lineTo(config.SCENE_WIDTH, config.NEST_HEIGHT) // Fix this to use scene width, not height
-    graphics.strokePath() // Apply the line style and draw the line
+    // graphics.lineStyle(2, 0x0000ff).beginPath()
+    // graphics.moveTo(config.SCENE_WIDTH - config.NEST_WIDTH, 0)
+    // graphics.lineTo(config.SCENE_WIDTH - config.NEST_WIDTH, config.SCENE_HEIGHT)
+    // graphics.strokePath() // Apply the line style and draw the line
+    // // Draw horizontal line at y = config.NEST_HEIGHT
+    // graphics.lineStyle(2, 0x0000ff).beginPath()
+    // graphics.moveTo(0, config.NEST_HEIGHT)
+    // graphics.lineTo(config.SCENE_WIDTH, config.NEST_HEIGHT) // Fix this to use scene width, not height
+    // graphics.strokePath() // Apply the line style and draw the line
   }
 
   flashDamage() {

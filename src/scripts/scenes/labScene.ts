@@ -5,6 +5,7 @@ import MainScene from './mainScene'
 import getRecipes from '../utils/potion-factory'
 import { POTION_TYPES } from '../utils/constants'
 import config from '../config'
+import Controls from '../utils/controls'
 
 const getTextColor = (enabled: boolean = true): string => {
   return enabled ? '#fff' : '#aaa'
@@ -37,6 +38,8 @@ export default class LabScene extends Phaser.Scene {
   cauldronText!: Phaser.GameObjects.Text
   selectionFrame!: Phaser.GameObjects.Rectangle
 
+  controls: Controls
+
   constructor() {
     super({ key: 'LabScene' })
   }
@@ -47,17 +50,19 @@ export default class LabScene extends Phaser.Scene {
   }
 
   create() {
+    this.controls = new Controls(this)
+
     this.add.graphics().fillStyle(0x000000, 0.7).fillRect(0, 0, this.cameras.main.width, this.cameras.main.height)
 
     this.createGraphics()
 
-    this.input.keyboard.on('keydown-D', this.nextSection, this)
-    this.input.keyboard.on('keydown-A', this.previousSection, this)
-    this.input.keyboard.on('keydown-S', this.nextItem, this)
-    this.input.keyboard.on('keydown-W', this.previousItem, this)
-    this.input.keyboard.on('keydown-ENTER', this.returnToMainScene, this)
-    this.input.keyboard.on('keydown-SPACE', this.selectItem, this)
-    this.input.keyboard.on('keydown-SHIFT', this.drinkPotion, this)
+    this.controls.on('right', this.nextSection, this)
+    this.controls.on('left', this.previousSection, this)
+    this.controls.on('down', this.nextItem, this)
+    this.controls.on('up', this.previousItem, this)
+    this.controls.on('enterOrLeave', this.returnToMainScene, this)
+    this.controls.on('action', this.selectItem, this)
+    this.controls.on('itemAction', this.drinkPotion, this)
   }
 
   createGraphics() {

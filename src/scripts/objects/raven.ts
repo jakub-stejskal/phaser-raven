@@ -2,13 +2,7 @@ import Item from './item'
 import Nest from './nest'
 import config from '../config'
 import MainScene from '../scenes/mainScene'
-
-interface WASD {
-  W: Phaser.Input.Keyboard.Key
-  A: Phaser.Input.Keyboard.Key
-  S: Phaser.Input.Keyboard.Key
-  D: Phaser.Input.Keyboard.Key
-}
+import Controls from '../utils/controls'
 
 const SPRITE_SCALE = 4
 
@@ -17,8 +11,7 @@ export default class Raven extends Phaser.GameObjects.Container {
   ravenSprite: Phaser.GameObjects.Sprite
   itemIndicators: Phaser.GameObjects.Ellipse[]
 
-  cursors: Phaser.Types.Input.Keyboard.CursorKeys
-  keys: WASD
+  controls: Controls
   body: Phaser.Physics.Arcade.Body
   scene: MainScene
 
@@ -81,11 +74,10 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.add(this.ravenSprite)
 
     // Setup controls
-    this.cursors = this.scene.input.keyboard.createCursorKeys()
-    this.keys = this.scene.input.keyboard.addKeys('W,A,S,D') as WASD
-    this.scene.input.keyboard.on('keydown-SPACE', this.startFlying, this)
-    this.scene.input.keyboard.on('keyup-SPACE', this.stopFlying, this)
-    this.scene.input.keyboard.on('keyup-SHIFT', this.collectItem, this)
+    this.controls = new Controls(this.scene)
+    this.controls.on('action', this.startFlying, this)
+    this.controls.on('actionRelease', this.stopFlying, this)
+    this.controls.on('itemAction', this.collectItem, this)
 
     this.debugText.setDepth(Number.MAX_SAFE_INTEGER)
 
@@ -126,18 +118,18 @@ export default class Raven extends Phaser.GameObjects.Container {
     let movingRight = false
 
     // Handle left and right movement
-    if (this.keys.A.isDown) {
+    if (this.controls.leftPressed) {
       this.body.setVelocityX(-speed)
       movingLeft = true
-    } else if (this.keys.D.isDown) {
+    } else if (this.controls.rightPressed) {
       this.body.setVelocityX(speed)
       movingRight = true
     }
 
     // Handle up and down movement
-    if (this.keys.W.isDown) {
+    if (this.controls.upPressed) {
       this.body.setVelocityY(-speed)
-    } else if (this.keys.S.isDown) {
+    } else if (this.controls.downPressed) {
       this.body.setVelocityY(speed)
     }
 
@@ -185,7 +177,7 @@ export default class Raven extends Phaser.GameObjects.Container {
     this.updateItemIndicators()
 
     // Recover stamina when not moving or flying
-    if (this.cursors.space.isUp) {
+    if (!this.controls.actionPressed) {
       if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
         this.recoverStamina(config.STAMINA_RECOVERY_IDLE)
       } else {

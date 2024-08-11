@@ -1,5 +1,5 @@
 export default {
-  DEBUG: false,
+  DEBUG: true,
 
   SCENE_WIDTH: 1280,
   SCENE_HEIGHT: 720,

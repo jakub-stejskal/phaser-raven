@@ -1,9 +1,12 @@
+import Controls from '../utils/controls'
+
 export default class IntroScene extends Phaser.Scene {
   constructor() {
     super({ key: 'IntroScene' })
   }
 
   create() {
+    const controls = new Controls(this)
     // Set background color
     this.cameras.main.setBackgroundColor('#000')
 
@@ -108,6 +111,7 @@ export default class IntroScene extends Phaser.Scene {
         backgroundColor: '#00000'
       })
       .setOrigin(0.5)
+    controls.on('action', () => this.scene.start('MainScene'))
 
     this.add
       .text(
@@ -120,10 +124,5 @@ export default class IntroScene extends Phaser.Scene {
         { fontSize: '12px', color: '#ffffff', fontStyle: 'italic' }
       )
       .setOrigin(0.8)
-
-    // Listen for SPACE key press to start the game
-    this.input.keyboard.on('keydown-SPACE', () => {
-      this.scene.start('MainScene')
-    })
   }
 }
